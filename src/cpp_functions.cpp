@@ -104,4 +104,3 @@ Rcpp::CharacterVector getModifiedResidues(std::string fastaPath,
 }
 
 
-

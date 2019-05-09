@@ -2,6 +2,7 @@
 .DS_store
 *.Rproj
 lib/*
+README.html
 
 # History files
 .Rhistory
