@@ -2,7 +2,11 @@
 Wraps useful c++ functions for dealing with peptide data in R.
 
 ## Installation
-```R
-devtools::install_github('https://github.com/ajmaurais/peptideUtils')
+
+```bash
+git clone --recurse-submodules https://github.com/ajmaurais/peptideUtils
+cd peptideUtils/utils && make
+cd ..
+Rscript -e 'devtools::install()'
 ```
 
