@@ -1,6 +1,6 @@
 
 PKG_CPPFLAGS += -I../utils/include
 PKG_CXXFLAGS = -fPIC -c -g -Wall -std=c++11
-PKG_LIBS += ../lib/utils.a
+PKG_LIBS += ../utils/lib/utils.a
 
 
