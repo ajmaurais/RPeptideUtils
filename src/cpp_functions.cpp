@@ -2,6 +2,7 @@
 #include <Rcpp.h>
 #include <stdexcept>
 #include <vector>
+#include <set>
 
 #include <fastaFile.hpp>
 
@@ -14,6 +15,7 @@ const char* MOD_CHARS = "*";
 //' @param fastaPath path to fasta formated file to look up protein sequences
 //' @param ids CharacterVector of uniprot IDs
 //' @return CharacterVector of protein sequences in same order as ids.
+//'
 //' 
 // [[Rcpp::export]]
 Rcpp::CharacterVector getSquences(std::string fastaPath, const Rcpp::CharacterVector& ids)
@@ -66,6 +68,14 @@ std::string _getModLocs(std::string seq, std::vector<int>& modLocs)
 	return ret;
 }
 
+//remove residues before and after cleavage
+std::string makeSequenceFromFullSequence(std::string fs)
+{
+	fs = fs.substr(fs.find(".") + 1);
+	fs = fs.substr(0, fs.find_last_of("."));
+	return fs;
+}
+
 //' Get locations of modified residues in parent protein
 //'
 //' @title Get locations of modified residues in parent protein
@@ -74,6 +84,7 @@ std::string _getModLocs(std::string seq, std::vector<int>& modLocs)
 //' @param peptideSeq list of peptide sequences containing modifications
 //' @param modSep delimiter for multiple modifications
 //' @return CharacterVector containing locations of modifications in protein sequence
+//'
 //' 
 // [[Rcpp::export]]
 Rcpp::CharacterVector getModifiedResidues(std::string fastaPath,
@@ -101,6 +112,30 @@ Rcpp::CharacterVector getModifiedResidues(std::string fastaPath,
 		ret[i] = this_modLocs;
 	}
 	return ret;
+}
+
+//' Combined concated mods from multiple peptides into a single string
+//' 
+//' @title Combined mods from multiple peptides into a single string
+//' @param mods Modifications to combine
+//' @param sep delimiter separating modifications
+//' @return Modifications combined into a single string
+//'
+//' 
+// [[Rcpp::export]]
+std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
+{
+	std::set<std::string> found;
+	
+	size_t len = mods.size();
+	for(size_t i = 0; i < len; i++)
+	{
+		std::vector<std::string> temp;
+		utils::split(std::string(mods[i]), sep, temp);
+		found.insert(temp.begin(), temp.end());
+	}
+	
+	return utils::concat(found.begin(), found.end());
 }
 
 

@@ -31,10 +31,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// combineMods
+std::string combineMods(const Rcpp::CharacterVector& mods, char sep);
+RcppExport SEXP _peptideUtils_combineMods(SEXP modsSEXP, SEXP sepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type mods(modsSEXP);
+    Rcpp::traits::input_parameter< char >::type sep(sepSEXP);
+    rcpp_result_gen = Rcpp::wrap(combineMods(mods, sep));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_getSquences", (DL_FUNC) &_peptideUtils_getSquences, 2},
     {"_peptideUtils_getModifiedResidues", (DL_FUNC) &_peptideUtils_getModifiedResidues, 4},
+    {"_peptideUtils_combineMods", (DL_FUNC) &_peptideUtils_combineMods, 2},
     {NULL, NULL, 0}
 };
 

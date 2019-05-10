@@ -7,9 +7,10 @@
 #' @param fastaPath path to fasta formated file to look up protein sequences
 #' @param ids CharacterVector of uniprot IDs
 #' @return CharacterVector of protein sequences in same order as ids.
+#'
 #' 
 getSquences <- function(fastaPath, ids) {
-    .Call(`_peptideUtils_getSquences`, fastaPath, ids)
+    .Call('_peptideUtils_getSquences', PACKAGE = 'peptideUtils', fastaPath, ids)
 }
 
 #' Get locations of modified residues in parent protein
@@ -20,8 +21,21 @@ getSquences <- function(fastaPath, ids) {
 #' @param peptideSeq list of peptide sequences containing modifications
 #' @param modSep delimiter for multiple modifications
 #' @return CharacterVector containing locations of modifications in protein sequence
+#'
 #' 
 getModifiedResidues <- function(fastaPath, ids, peptideSeq, modSep = "|") {
-    .Call(`_peptideUtils_getModifiedResidues`, fastaPath, ids, peptideSeq, modSep)
+    .Call('_peptideUtils_getModifiedResidues', PACKAGE = 'peptideUtils', fastaPath, ids, peptideSeq, modSep)
+}
+
+#' Combined concated mods from multiple peptides into a single string
+#' 
+#' @title Combined mods from multiple peptides into a single string
+#' @param mods Modifications to combine
+#' @param sep delimiter separating modifications
+#' @return Modifications combined into a single string
+#'
+#' 
+combineMods <- function(mods, sep = '|') {
+    .Call('_peptideUtils_combineMods', PACKAGE = 'peptideUtils', mods, sep)
 }
 
