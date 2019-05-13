@@ -5,11 +5,12 @@
 #include <set>
 
 #include <fastaFile.hpp>
+#include <molecularFormula.hpp>
 
 //Characters representing dynamic modifications
 const char* MOD_CHARS = "*";
 
-//' Get protein sequences for a vector of uniprit IDs
+//' Get protein sequences for a vector of uniprot IDs
 //' 
 //' @title Get protein IDs in fasta file for a vector of Uniprot IDs
 //' @param fastaPath path to fasta formated file to look up protein sequences
@@ -137,5 +138,86 @@ std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 	
 	return utils::concat(found.begin(), found.end());
 }
+
+//!Return data files included in an R package
+std::string _getPackageData(std::string filename,
+                            std::string packageName = "peptideUtils")
+{
+  Rcpp::Environment base("package:base");
+  Rcpp::Function sys_file = base["system.file"];
+  Rcpp::StringVector file_path_sv = sys_file(
+    filename,
+    Rcpp::_["package"] = packageName,
+    Rcpp::_["mustWork"] = true
+  );
+  std::string file_path = Rcpp::as<std::string>(file_path_sv);
+  return file_path;
+}
+
+//' Calculate peptide monoisotopic or average masses.
+//' 
+//' @title Calculate peptide masses
+//' @param sequences Peptide sequences
+//' @param monoMass Should monoisotopic mass be calculated. If false, average mass is calculated.
+//' @param residueMasses Path to residueAtoms file. If blank, the default file included in the package is used. 
+//' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
+//' @return vector of peptide masses.
+//'
+// [[Rcpp::export]]
+Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
+                            bool monoMass = true,
+                            std::string residueAtoms = "",
+                            std::string atomMasses = "")
+{
+  //get data file paths
+  std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
+  std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+  char avg_mono = monoMass ? 'm' : 'a';
+  
+  //init residues
+  utils::Residues residues(residueAtomsPath, atomMassesPath);
+  if(!residues.initialize()) throw std::runtime_error("Error reading required files for calcMass!");
+  
+  size_t len = sequences.size();
+  Rcpp::NumericVector ret(len);
+  for(size_t i = 0; i < len; i++){
+    ret[i] = residues.calcMass(std::string(sequences[i]), avg_mono);
+  }
+  
+  return ret;
+}
+
+//' Calculate peptide molecular formulas
+//' 
+//' @title Calculate peptide formulas
+//' @param sequences Peptide sequences
+//' @param subscripts Should formulas have subscripts or normal baseline numbers?
+//' @param residueMasses Path to residueAtoms file. If blank, the default file included in the package is used. 
+//' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
+//' @return vector of peptide formulas.
+//'
+// [[Rcpp::export]]
+Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences, 
+                               bool subscripts = false,
+                               std::string residueAtoms = "",
+                               std::string atomMasses = "")
+{
+  //get data file paths
+  std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
+  std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+
+  //init residues
+  utils::Residues residues(residueAtomsPath, atomMassesPath);
+  if(!residues.initialize()) throw std::runtime_error("Error reading required files for calcFormula!");
+  
+  size_t len = sequences.size();
+  Rcpp::StringVector ret(len);
+  for(size_t i = 0; i < len; i++){
+    ret[i] = residues.calcFormula(std::string(sequences[i]), subscripts);
+  }
+  
+  return ret;
+}
+
 
 

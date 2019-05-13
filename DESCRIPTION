@@ -5,7 +5,7 @@ Version: 1.0
 Date: 2019-04-25
 Author: Aaron Maurais <aaron.maurais@bc.edu>
 Maintainer: Aaron Maurais <aaron.maurais@bc.edu>
-Description: This package wraps many useful functions from my utils library (https://github.com/ajmaurais/utils) for working with string representations of peptides in R.
+Description: This package wraps useful functions from my utils library (https://github.com/ajmaurais/utils) for working with string representations of peptides in R.
 License: MIT
 Imports: Rcpp (>= 1.0.0)
 LinkingTo: Rcpp

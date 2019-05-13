@@ -3,20 +3,19 @@
 \alias{peptideUtils}
 \docType{package}
 \title{
-  A short title line describing what the package does
+  R package which wraps useful c++ functions for dealing with peptide data.
 }
 \description{
-  A more detailed description of what the package does. A length
-  of about one to five lines is recommended.
+  This package wraps useful functions from my utils library (https://github.com/ajmaurais/utils) for working with string representations of peptides in R.
 }
 \details{
   This section should provide a more detailed overview of how to use the
   package, including the most important functions.
 }
 \author{
-Your Name, email optional.
+Aaron Maurais
 
-Maintainer: Your Name <your@email.com>
+Maintainer: Aaron Maurais mauraisa@bc.edu
 }
 \references{
   This optional section can contain literature or other references for

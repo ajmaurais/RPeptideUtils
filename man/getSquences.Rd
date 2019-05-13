@@ -15,5 +15,5 @@ getSquences(fastaPath, ids)
 CharacterVector of protein sequences in same order as ids.
 }
 \description{
-Get protein sequences for a vector of uniprit IDs
+Get protein sequences for a vector of uniprot IDs
 }

@@ -43,11 +43,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calcMass
+Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences, bool monoMass, std::string residueAtoms, std::string atomMasses);
+RcppExport SEXP _peptideUtils_calcMass(SEXP sequencesSEXP, SEXP monoMassSEXP, SEXP residueAtomsSEXP, SEXP atomMassesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< bool >::type monoMass(monoMassSEXP);
+    Rcpp::traits::input_parameter< std::string >::type residueAtoms(residueAtomsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type atomMasses(atomMassesSEXP);
+    rcpp_result_gen = Rcpp::wrap(calcMass(sequences, monoMass, residueAtoms, atomMasses));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calcFormula
+Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences, bool subscripts, std::string residueAtoms, std::string atomMasses);
+RcppExport SEXP _peptideUtils_calcFormula(SEXP sequencesSEXP, SEXP subscriptsSEXP, SEXP residueAtomsSEXP, SEXP atomMassesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< bool >::type subscripts(subscriptsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type residueAtoms(residueAtomsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type atomMasses(atomMassesSEXP);
+    rcpp_result_gen = Rcpp::wrap(calcFormula(sequences, subscripts, residueAtoms, atomMasses));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_getSquences", (DL_FUNC) &_peptideUtils_getSquences, 2},
     {"_peptideUtils_getModifiedResidues", (DL_FUNC) &_peptideUtils_getModifiedResidues, 4},
     {"_peptideUtils_combineMods", (DL_FUNC) &_peptideUtils_combineMods, 2},
+    {"_peptideUtils_calcMass", (DL_FUNC) &_peptideUtils_calcMass, 4},
+    {"_peptideUtils_calcFormula", (DL_FUNC) &_peptideUtils_calcFormula, 4},
     {NULL, NULL, 0}
 };
 
