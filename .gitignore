@@ -3,6 +3,7 @@
 *.Rproj
 lib/*
 README.html
+testFiles/*
 
 # History files
 .Rhistory
