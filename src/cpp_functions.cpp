@@ -82,7 +82,7 @@ std::string makeSequenceFromFullSequence(std::string fs)
 //' @title Get locations of modified residues in parent protein
 //' @param fastaPath path to fasta formated file to look up protein sequences
 //' @param ids CharacterVector of Uniprot IDs
-//' @param peptideSeq list of peptide sequences containing modifications
+//' @param peptideSeq CharacterVector of peptide sequences containing modifications
 //' @param modSep delimiter for multiple modifications
 //' @return CharacterVector containing locations of modifications in protein sequence
 //'
