@@ -11,7 +11,7 @@ getModifiedResidues(fastaPath, ids, peptideSeq, modSep = "|")
 
 \item{ids}{CharacterVector of Uniprot IDs}
 
-\item{peptideSeq}{list of peptide sequences containing modifications}
+\item{peptideSeq}{CharacterVector of peptide sequences containing modifications}
 
 \item{modSep}{delimiter for multiple modifications}
 }

@@ -58,16 +58,30 @@ BEGIN_RCPP
 END_RCPP
 }
 // calcFormula
-Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences, bool subscripts, std::string residueAtoms, std::string atomMasses);
-RcppExport SEXP _peptideUtils_calcFormula(SEXP sequencesSEXP, SEXP subscriptsSEXP, SEXP residueAtomsSEXP, SEXP atomMassesSEXP) {
+Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences, bool subscripts, std::string residueAtoms);
+RcppExport SEXP _peptideUtils_calcFormula(SEXP sequencesSEXP, SEXP subscriptsSEXP, SEXP residueAtomsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type sequences(sequencesSEXP);
     Rcpp::traits::input_parameter< bool >::type subscripts(subscriptsSEXP);
     Rcpp::traits::input_parameter< std::string >::type residueAtoms(residueAtomsSEXP);
-    Rcpp::traits::input_parameter< std::string >::type atomMasses(atomMassesSEXP);
-    rcpp_result_gen = Rcpp::wrap(calcFormula(sequences, subscripts, residueAtoms, atomMasses));
+    rcpp_result_gen = Rcpp::wrap(calcFormula(sequences, subscripts, residueAtoms));
+    return rcpp_result_gen;
+END_RCPP
+}
+// oneLetterToThree
+Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences, std::string sep_in, std::string sep_out, std::string n_term_out, std::string c_term_out);
+RcppExport SEXP _peptideUtils_oneLetterToThree(SEXP sequencesSEXP, SEXP sep_inSEXP, SEXP sep_outSEXP, SEXP n_term_outSEXP, SEXP c_term_outSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type sep_in(sep_inSEXP);
+    Rcpp::traits::input_parameter< std::string >::type sep_out(sep_outSEXP);
+    Rcpp::traits::input_parameter< std::string >::type n_term_out(n_term_outSEXP);
+    Rcpp::traits::input_parameter< std::string >::type c_term_out(c_term_outSEXP);
+    rcpp_result_gen = Rcpp::wrap(oneLetterToThree(sequences, sep_in, sep_out, n_term_out, c_term_out));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -77,7 +91,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_getModifiedResidues", (DL_FUNC) &_peptideUtils_getModifiedResidues, 4},
     {"_peptideUtils_combineMods", (DL_FUNC) &_peptideUtils_combineMods, 2},
     {"_peptideUtils_calcMass", (DL_FUNC) &_peptideUtils_calcMass, 4},
-    {"_peptideUtils_calcFormula", (DL_FUNC) &_peptideUtils_calcFormula, 4},
+    {"_peptideUtils_calcFormula", (DL_FUNC) &_peptideUtils_calcFormula, 3},
+    {"_peptideUtils_oneLetterToThree", (DL_FUNC) &_peptideUtils_oneLetterToThree, 5},
     {NULL, NULL, 0}
 };
 

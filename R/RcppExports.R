@@ -44,7 +44,7 @@ combineMods <- function(mods, sep = '|') {
 #' @title Calculate peptide masses
 #' @param sequences Peptide sequences
 #' @param monoMass Should monoisotopic mass be calculated. If false, average mass is calculated.
-#' @param residueMasses Path to residueAtoms file. If blank, the default file included in the package is used. 
+#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
 #' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 #' @return vector of peptide masses.
 #'
@@ -57,11 +57,24 @@ calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "", atomMasses =
 #' @title Calculate peptide formulas
 #' @param sequences Peptide sequences
 #' @param subscripts Should formulas have subscripts or normal baseline numbers?
-#' @param residueMasses Path to residueAtoms file. If blank, the default file included in the package is used. 
-#' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
+#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
 #' @return vector of peptide formulas.
 #'
-calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "", atomMasses = "") {
-    .Call(`_peptideUtils_calcFormula`, sequences, subscripts, residueAtoms, atomMasses)
+calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
+    .Call(`_peptideUtils_calcFormula`, sequences, subscripts, residueAtoms)
+}
+
+#' Convert from 1 letter amino acid codes to 3
+#' 
+#' @title Convert to 3 letter amino acid codes
+#' @param sequences vector of sequences
+#' @param sep_in deliminator between amino acids in input
+#' @param sep_out deliminator between amino acids in output
+#' @param n_term_out string to append to n terminus
+#' @param c_term_out string to append to c terminus
+#' @return StringVector of peptides with three letter amino acid codes
+#' 
+oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
+    .Call(`_peptideUtils_oneLetterToThree`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
 

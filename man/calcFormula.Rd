@@ -4,17 +4,14 @@
 \alias{calcFormula}
 \title{Calculate peptide formulas}
 \usage{
-calcFormula(sequences, subscripts = FALSE, residueAtoms = "",
-  atomMasses = "")
+calcFormula(sequences, subscripts = FALSE, residueAtoms = "")
 }
 \arguments{
 \item{sequences}{Peptide sequences}
 
 \item{subscripts}{Should formulas have subscripts or normal baseline numbers?}
 
-\item{atomMasses}{Path to atomMasses file. If blank, the default file included in the package is used.}
-
-\item{residueMasses}{Path to residueAtoms file. If blank, the default file included in the package is used.}
+\item{residueAtoms}{Path to residueAtoms file. If blank, the default file included in the package is used.}
 }
 \value{
 vector of peptide formulas.
