@@ -12,20 +12,44 @@
 //Characters representing dynamic modifications
 const char* MOD_CHARS = "*";
 
+//!Return data files included in an R package
+std::string _getPackageData(std::string filename,
+                            std::string packageName = "peptideUtils")
+{
+  Rcpp::Environment base("package:base");
+  Rcpp::Function sys_file = base["system.file"];
+  Rcpp::StringVector file_path_sv = sys_file(
+    filename,
+    Rcpp::_["package"] = packageName,
+    Rcpp::_["mustWork"] = true
+  );
+  std::string file_path = Rcpp::as<std::string>(file_path_sv);
+  return file_path;
+}
+
 //' Get protein sequences for a vector of uniprot IDs
 //' 
 //' @title Get protein IDs in fasta file for a vector of Uniprot IDs
-//' @param fastaPath path to fasta formated file to look up protein sequences
 //' @param ids CharacterVector of uniprot IDs
+//' @param fastaPath path to fasta formated file to look up protein sequences. 
 //' @return CharacterVector of protein sequences in same order as ids.
-//'
+//' 
+//' @examples
+//' #By default the fasta file included in the package containing human protein sequences is used.
+//' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
+//' 
+//' #A fasta file can also be manually spedified.
+//' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
+//' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 //' 
 // [[Rcpp::export]]
-Rcpp::CharacterVector getSquences(std::string fastaPath, const Rcpp::CharacterVector& ids)
+Rcpp::CharacterVector getSquences(const Rcpp::CharacterVector& ids, std::string fastaPath = "")
 {
+  std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+  
   Rcpp::CharacterVector ret;
   
-  utils::FastaFile fasta(fastaPath);
+  utils::FastaFile fasta(_fastaPath);
   if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
   
   size_t len = ids.size();
@@ -96,17 +120,19 @@ std::string makeSequenceFromFullSequence(std::string fs)
 //'
 //' 
 // [[Rcpp::export]]
-Rcpp::CharacterVector getModifiedResidues(std::string fastaPath,
-										  const Rcpp::CharacterVector& ids,
-										  const Rcpp::CharacterVector& peptideSeq,
-										  std::string modSep = "|")
+Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
+                    										  const Rcpp::CharacterVector& peptideSeq,
+                    										  std::string fastaPath = "",
+                    										  std::string modSep = "|")
 {
+  std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+	
 	size_t len = ids.size();
 	if(len != peptideSeq.size())
 		throw std::runtime_error("ids.size() != peptideSeq.size()");
 	
 	//init FastaFile
-	utils::FastaFile fasta(fastaPath);
+	utils::FastaFile fasta(_fastaPath);
   	if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
 	Rcpp::CharacterVector ret(len, "");
@@ -147,21 +173,6 @@ std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 	return utils::concat(found.begin(), found.end());
 }
 
-//!Return data files included in an R package
-std::string _getPackageData(std::string filename,
-                            std::string packageName = "peptideUtils")
-{
-  Rcpp::Environment base("package:base");
-  Rcpp::Function sys_file = base["system.file"];
-  Rcpp::StringVector file_path_sv = sys_file(
-    filename,
-    Rcpp::_["package"] = packageName,
-    Rcpp::_["mustWork"] = true
-  );
-  std::string file_path = Rcpp::as<std::string>(file_path_sv);
-  return file_path;
-}
-
 //' Calculate peptide monoisotopic or average masses.
 //' 
 //' @title Calculate peptide masses
@@ -173,9 +184,9 @@ std::string _getPackageData(std::string filename,
 //'
 // [[Rcpp::export]]
 Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
-                            bool monoMass = true,
-                            std::string residueAtoms = "",
-                            std::string atomMasses = "")
+                             bool monoMass = true,
+                             std::string residueAtoms = "",
+                             std::string atomMasses = "")
 {
   //get data file paths
   std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;

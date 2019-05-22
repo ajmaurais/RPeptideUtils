@@ -4,16 +4,25 @@
 \alias{getSquences}
 \title{Get protein IDs in fasta file for a vector of Uniprot IDs}
 \usage{
-getSquences(fastaPath, ids)
+getSquences(ids, fastaPath = "")
 }
 \arguments{
-\item{fastaPath}{path to fasta formated file to look up protein sequences}
-
 \item{ids}{CharacterVector of uniprot IDs}
+
+\item{fastaPath}{path to fasta formated file to look up protein sequences.}
 }
 \value{
 CharacterVector of protein sequences in same order as ids.
 }
 \description{
 Get protein sequences for a vector of uniprot IDs
+}
+\examples{
+#By default the fasta file included in the package containing human protein sequences is used.
+getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
+
+#A fasta file can also be manually spedified.
+fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
+getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
+
 }
