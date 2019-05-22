@@ -29,6 +29,8 @@ getSquences <- function(ids, fastaPath = "") {
 #' @param modSep delimiter for multiple modifications
 #' @return CharacterVector containing locations of modifications in protein sequence
 #'
+#' @examples
+#' getModifiedResidues(c("Q00839", "Q9HCS7", "Q7L014"), c("APQC*LGK", "FADMEC*K", "GAEIIVC*TPGR"))
 #' 
 getModifiedResidues <- function(ids, peptideSeq, fastaPath = "", modSep = "|") {
     .Call(`_peptideUtils_getModifiedResidues`, ids, peptideSeq, fastaPath, modSep)
@@ -57,6 +59,9 @@ combineMods <- function(mods, sep = '|') {
 #' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 #' @return vector of peptide masses.
 #'
+#' @examples
+#' calcMass(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"))
+#'
 calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "", atomMasses = "") {
     .Call(`_peptideUtils_calcMass`, sequences, monoMass, residueAtoms, atomMasses)
 }
@@ -68,6 +73,9 @@ calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "", atomMasses =
 #' @param subscripts Should formulas have subscripts or normal baseline numbers?
 #' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
 #' @return vector of peptide formulas.
+#'
+#' @examples
+#' calcFormula(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"), subscripts = TRUE)
 #'
 calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
     .Call(`_peptideUtils_calcFormula`, sequences, subscripts, residueAtoms)
@@ -83,7 +91,7 @@ calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
 #' @param c_term_out string to append to c terminus
 #' @return StringVector of peptides with three letter amino acid codes
 #' 
-#' @example
+#' @examples
 #' oneLetterToThree(c("AC*LLPETVNMEEYPYDAEY", "ALCAEFK", "AQUPIVER", "C*TGGEVGATSALAPK"))
 #' 
 oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
@@ -100,7 +108,7 @@ oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = 
 #' @param c_term_out string to append to c terminus
 #' @return StringVector of peptides with one letter amino acid codes
 #' 
-#' @example
+#' @examples
 #' threeLetterToOne(c("Ala-Cys*-Leu-Leu-Pro", "Ala-Leu-Cys-Ala", "Ala-Gln-Sec-Ile"), sep_in = "-")
 #' 
 threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {

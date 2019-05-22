@@ -24,3 +24,7 @@ StringVector of peptides with one letter amino acid codes
 \description{
 Convert from 3 letter amino acid codes to 1
 }
+\examples{
+threeLetterToOne(c("Ala-Cys*-Leu-Leu-Pro", "Ala-Leu-Cys-Ala", "Ala-Gln-Sec-Ile"), sep_in = "-")
+
+}

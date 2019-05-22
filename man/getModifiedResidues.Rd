@@ -21,3 +21,7 @@ CharacterVector containing locations of modifications in protein sequence
 \description{
 Get locations of modified residues in parent protein
 }
+\examples{
+getModifiedResidues(c("Q00839", "Q9HCS7", "Q7L014"), c("APQC*LGK", "FADMEC*K", "GAEIIVC*TPGR"))
+
+}

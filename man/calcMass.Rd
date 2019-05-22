@@ -22,3 +22,7 @@ vector of peptide masses.
 \description{
 Calculate peptide monoisotopic or average masses.
 }
+\examples{
+calcMass(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"))
+
+}

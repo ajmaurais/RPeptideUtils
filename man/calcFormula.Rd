@@ -19,3 +19,7 @@ vector of peptide formulas.
 \description{
 Calculate peptide molecular formulas
 }
+\examples{
+calcFormula(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"), subscripts = TRUE)
+
+}

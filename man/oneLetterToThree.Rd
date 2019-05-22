@@ -24,3 +24,7 @@ StringVector of peptides with three letter amino acid codes
 \description{
 Convert from 1 letter amino acid codes to 3
 }
+\examples{
+oneLetterToThree(c("AC*LLPETVNMEEYPYDAEY", "ALCAEFK", "AQUPIVER", "C*TGGEVGATSALAPK"))
+
+}

@@ -118,6 +118,8 @@ std::string makeSequenceFromFullSequence(std::string fs)
 //' @param modSep delimiter for multiple modifications
 //' @return CharacterVector containing locations of modifications in protein sequence
 //'
+//' @examples
+//' getModifiedResidues(c("Q00839", "Q9HCS7", "Q7L014"), c("APQC*LGK", "FADMEC*K", "GAEIIVC*TPGR"))
 //' 
 // [[Rcpp::export]]
 Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
@@ -184,6 +186,9 @@ std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 //' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 //' @return vector of peptide masses.
 //'
+//' @examples
+//' calcMass(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"))
+//'
 // [[Rcpp::export]]
 Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
                              bool monoMass = true,
@@ -215,6 +220,9 @@ Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
 //' @param subscripts Should formulas have subscripts or normal baseline numbers?
 //' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
 //' @return vector of peptide formulas.
+//'
+//' @examples
+//' calcFormula(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"), subscripts = TRUE)
 //'
 // [[Rcpp::export]]
 Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences,
@@ -335,7 +343,7 @@ std::string oneLetterToThree(std::string seq,
 //' @param c_term_out string to append to c terminus
 //' @return StringVector of peptides with three letter amino acid codes
 //' 
-//' @example
+//' @examples
 //' oneLetterToThree(c("AC*LLPETVNMEEYPYDAEY", "ALCAEFK", "AQUPIVER", "C*TGGEVGATSALAPK"))
 //' 
 // [[Rcpp::export]]
@@ -410,7 +418,7 @@ std::string threeLetterToOne(std::string seq,
 //' @param c_term_out string to append to c terminus
 //' @return StringVector of peptides with one letter amino acid codes
 //' 
-//' @example
+//' @examples
 //' threeLetterToOne(c("Ala-Cys*-Leu-Leu-Pro", "Ala-Leu-Cys-Ala", "Ala-Gln-Sec-Ile"), sep_in = "-")
 //' 
 // [[Rcpp::export]]
