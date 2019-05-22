@@ -149,13 +149,15 @@ Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
 	return ret;
 }
 
-//' Combined concated mods from multiple peptides into a single string
+//' Combined concated mods from multiple peptides into a single string.
 //' 
 //' @title Combined mods from multiple peptides into a single string
 //' @param mods Modifications to combine
 //' @param sep delimiter separating modifications
 //' @return Modifications combined into a single string
-//'
+//' 
+//' @examples
+//' combineMods(c('C157', 'C157|C125', 'C50', 'C125'))
 //' 
 // [[Rcpp::export]]
 std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
@@ -258,6 +260,71 @@ const std::map<char, std::string> _ONE_LETTER_TO_THREE_MAP = {{'A', "Ala"},
                                                               {'W', "Trp"},
                                                               {'Y', "Tyr"}};
 
+const std::map<std::string, char> _THREE_LETTER_TO_ONE_MAP = {{"Ala", 'A'},
+                                                              {"Cys", 'C'},
+                                                              {"Asp", 'D'},
+                                                              {"Glu", 'E'},
+                                                              {"Phe", 'F'},
+                                                              {"Gly", 'G'},
+                                                              {"His", 'H'},
+                                                              {"Ile", 'I'},
+                                                              {"Lys", 'K'},
+                                                              {"Leu", 'L'},
+                                                              {"Met", 'M'},
+                                                              {"Asn", 'N'},
+                                                              {"Pro", 'P'},
+                                                              {"Gln", 'Q'},
+                                                              {"Arg", 'R'},
+                                                              {"Ser", 'S'},
+                                                              {"Thr", 'T'},
+                                                              {"Sec", 'U'},
+                                                              {"Val", 'V'},
+                                                              {"Trp", 'W'},
+                                                              {"Tyr", 'Y'}};
+
+std::string oneLetterToThree(std::string seq,
+                             std::string sep_in = "",
+                             std::string sep_out = "",
+                             std::string n_term_out = "",
+                             std::string c_term_out = "")
+{
+  seq = utils::removeSubstrs(sep_in, seq, false);
+  std::string ret_temp = "";
+  std::string add = "";
+  
+  //check that n term is not a diff mod
+  for(const char* p = MOD_CHARS; *p; p++)
+    if(seq[0] == *p)
+      throw std::runtime_error("Invalid peptide sequence: " + seq);
+    
+    for(size_t i = 0; i < seq.length(); i++)
+    {
+      //deal with AA modifications
+      for(const char* p = MOD_CHARS; *p; p++)
+      {
+        if(seq[i] == *p){
+          ret_temp += seq[i];
+          seq.erase(i, 1);
+          break;
+        }
+      }
+      //exit loop if at end of sequence
+      if(i >= seq.length())
+        break;
+      
+      try{
+        add = _ONE_LETTER_TO_THREE_MAP.at(seq[i]);
+      }catch(std::out_of_range e){
+        throw std::out_of_range("Unknown amino acid: " + std::string(1, seq[i]) +
+                                ", in sequence: " + seq);
+      }
+      utils::addChar(add, ret_temp, sep_out);
+    }
+    return ((n_term_out.empty() ? "" : n_term_out + sep_out) +
+            ret_temp +
+            (c_term_out.empty() ? "" : sep_out + c_term_out));
+}
+
 //' Convert from 1 letter amino acid codes to 3
 //' 
 //' @title Convert to 3 letter amino acid codes
@@ -268,6 +335,9 @@ const std::map<char, std::string> _ONE_LETTER_TO_THREE_MAP = {{'A', "Ala"},
 //' @param c_term_out string to append to c terminus
 //' @return StringVector of peptides with three letter amino acid codes
 //' 
+//' @example
+//' oneLetterToThree(c("AC*LLPETVNMEEYPYDAEY", "ALCAEFK", "AQUPIVER", "C*TGGEVGATSALAPK"))
+//' 
 // [[Rcpp::export]]
 Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences,
                                     std::string sep_in = "",
@@ -277,46 +347,88 @@ Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences,
 {
   size_t len = sequences.size();
   Rcpp::StringVector ret(len);
-  for(size_t i = 0; i < len; i++)
-  {
-    std::string seq_temp = std::string(sequences[i]);
-    seq_temp = utils::removeSubstrs(sep_in, seq_temp, false);
-    std::string ret_temp = "";
-    std::string add = "";
+  for(size_t i = 0; i < len; i++){
+    ret[i] = oneLetterToThree(std::string(sequences[i]),
+                              sep_in, sep_out,
+                              n_term_out, c_term_out);
+  }
+  return ret;
+}
+
+std::string threeLetterToOne(std::string seq,
+                             std::string sep_in = "",
+                             std::string sep_out = "",
+                             std::string n_term_out = "",
+                             std::string c_term_out = "")
+{
+  seq = utils::removeSubstrs(sep_in, seq, false);
+  std::string ret_temp = "";
+  std::string add = "";
+  
+  //check that n term is not a diff mod
+  for(const char* p = MOD_CHARS; *p; p++)
+    if(seq[0] == *p)
+      throw std::runtime_error("Invalid peptide sequence: " + seq);
     
-    //check that n term is not a diff mod
-    for(const char* p = MOD_CHARS; *p; p++)
-      if(seq_temp[0] == *p)
-        throw std::runtime_error("Invalid peptide sequence: " + seq_temp);
-    
-    for(size_t j = 0; j < seq_temp.length(); j++)
+    for(size_t i = 0; i < seq.length(); i += 3)
     {
       //deal with AA modifications
       for(const char* p = MOD_CHARS; *p; p++)
       {
-        if(seq_temp[j] == *p){
-          ret_temp += seq_temp[j];
-          seq_temp.erase(j, 1);
+        if(seq[i] == *p){
+          ret_temp += seq[i];
+          seq.erase(i, 1);
           break;
         }
       }
       //exit loop if at end of sequence
-      if(j >= seq_temp.length())
+      if(i >= seq.length())
         break;
       
       try{
-        add = _ONE_LETTER_TO_THREE_MAP.at(seq_temp[j]);
+        std::string temp = seq.substr(i, 3);
+        //std::cout << temp << std::endl;
+        add = _THREE_LETTER_TO_ONE_MAP.at(seq.substr(i, 3));
       }catch(std::out_of_range e){
-        throw std::out_of_range("Unknown amino acid: " + std::string(1, seq_temp[j]) + 
-                                ", in sequence: " + seq_temp);
+        throw std::out_of_range("Unknown amino acid: " + std::string(1, seq[i]) +
+                                ", in sequence: " + seq);
       }
       utils::addChar(add, ret_temp, sep_out);
     }
-    ret[i] = ((n_term_out.empty() ? "" : n_term_out + sep_out) + 
-      ret_temp + 
-      (c_term_out.empty() ? "" : sep_out + c_term_out));
+    return ((n_term_out.empty() ? "" : n_term_out + sep_out) +
+            ret_temp +
+            (c_term_out.empty() ? "" : sep_out + c_term_out));
+}
+
+//' Convert from 3 letter amino acid codes to 1
+//' 
+//' @title Convert to 1 letter amino acid codes
+//' @param sequences vector of sequences
+//' @param sep_in deliminator between amino acids in input
+//' @param sep_out deliminator between amino acids in output
+//' @param n_term_out string to append to n terminus
+//' @param c_term_out string to append to c terminus
+//' @return StringVector of peptides with one letter amino acid codes
+//' 
+//' @example
+//' threeLetterToOne(c("Ala-Cys*-Leu-Leu-Pro", "Ala-Leu-Cys-Ala", "Ala-Gln-Sec-Ile"), sep_in = "-")
+//' 
+// [[Rcpp::export]]
+Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
+                                    std::string sep_in = "",
+                                    std::string sep_out = "",
+                                    std::string n_term_out = "",
+                                    std::string c_term_out = "")
+{
+  size_t len = sequences.size();
+  Rcpp::StringVector ret(len);
+  for(size_t i = 0; i < len; i++){
+    ret[i] = threeLetterToOne(std::string(sequences[i]),
+                              sep_in, sep_out,
+                              n_term_out, c_term_out);
   }
   return ret;
 }
+
 
 

@@ -4,13 +4,20 @@
 #' Get protein sequences for a vector of uniprot IDs
 #' 
 #' @title Get protein IDs in fasta file for a vector of Uniprot IDs
-#' @param fastaPath path to fasta formated file to look up protein sequences
 #' @param ids CharacterVector of uniprot IDs
+#' @param fastaPath path to fasta formated file to look up protein sequences. 
 #' @return CharacterVector of protein sequences in same order as ids.
-#'
 #' 
-getSquences <- function(fastaPath, ids) {
-    .Call(`_peptideUtils_getSquences`, fastaPath, ids)
+#' @examples
+#' #By default the fasta file included in the package containing human protein sequences is used.
+#' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
+#' 
+#' #A fasta file can also be manually spedified.
+#' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
+#' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
+#' 
+getSquences <- function(ids, fastaPath = "") {
+    .Call(`_peptideUtils_getSquences`, ids, fastaPath)
 }
 
 #' Get locations of modified residues in parent protein
@@ -23,17 +30,19 @@ getSquences <- function(fastaPath, ids) {
 #' @return CharacterVector containing locations of modifications in protein sequence
 #'
 #' 
-getModifiedResidues <- function(fastaPath, ids, peptideSeq, modSep = "|") {
-    .Call(`_peptideUtils_getModifiedResidues`, fastaPath, ids, peptideSeq, modSep)
+getModifiedResidues <- function(ids, peptideSeq, fastaPath = "", modSep = "|") {
+    .Call(`_peptideUtils_getModifiedResidues`, ids, peptideSeq, fastaPath, modSep)
 }
 
-#' Combined concated mods from multiple peptides into a single string
+#' Combined concated mods from multiple peptides into a single string.
 #' 
 #' @title Combined mods from multiple peptides into a single string
 #' @param mods Modifications to combine
 #' @param sep delimiter separating modifications
 #' @return Modifications combined into a single string
-#'
+#' 
+#' @examples
+#' combineMods(c('C157', 'C157|C125', 'C50', 'C125'))
 #' 
 combineMods <- function(mods, sep = '|') {
     .Call(`_peptideUtils_combineMods`, mods, sep)
@@ -74,7 +83,27 @@ calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
 #' @param c_term_out string to append to c terminus
 #' @return StringVector of peptides with three letter amino acid codes
 #' 
+#' @example
+#' oneLetterToThree(c("AC*LLPETVNMEEYPYDAEY", "ALCAEFK", "AQUPIVER", "C*TGGEVGATSALAPK"))
+#' 
 oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
     .Call(`_peptideUtils_oneLetterToThree`, sequences, sep_in, sep_out, n_term_out, c_term_out)
+}
+
+#' Convert from 3 letter amino acid codes to 1
+#' 
+#' @title Convert to 1 letter amino acid codes
+#' @param sequences vector of sequences
+#' @param sep_in deliminator between amino acids in input
+#' @param sep_out deliminator between amino acids in output
+#' @param n_term_out string to append to n terminus
+#' @param c_term_out string to append to c terminus
+#' @return StringVector of peptides with one letter amino acid codes
+#' 
+#' @example
+#' threeLetterToOne(c("Ala-Cys*-Leu-Leu-Pro", "Ala-Leu-Cys-Ala", "Ala-Gln-Sec-Ile"), sep_in = "-")
+#' 
+threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
+    .Call(`_peptideUtils_threeLetterToOne`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
 

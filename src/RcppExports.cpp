@@ -6,28 +6,28 @@
 using namespace Rcpp;
 
 // getSquences
-Rcpp::CharacterVector getSquences(std::string fastaPath, const Rcpp::CharacterVector& ids);
-RcppExport SEXP _peptideUtils_getSquences(SEXP fastaPathSEXP, SEXP idsSEXP) {
+Rcpp::CharacterVector getSquences(const Rcpp::CharacterVector& ids, std::string fastaPath);
+RcppExport SEXP _peptideUtils_getSquences(SEXP idsSEXP, SEXP fastaPathSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type ids(idsSEXP);
-    rcpp_result_gen = Rcpp::wrap(getSquences(fastaPath, ids));
+    Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
+    rcpp_result_gen = Rcpp::wrap(getSquences(ids, fastaPath));
     return rcpp_result_gen;
 END_RCPP
 }
 // getModifiedResidues
-Rcpp::CharacterVector getModifiedResidues(std::string fastaPath, const Rcpp::CharacterVector& ids, const Rcpp::CharacterVector& peptideSeq, std::string modSep);
-RcppExport SEXP _peptideUtils_getModifiedResidues(SEXP fastaPathSEXP, SEXP idsSEXP, SEXP peptideSeqSEXP, SEXP modSepSEXP) {
+Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids, const Rcpp::CharacterVector& peptideSeq, std::string fastaPath, std::string modSep);
+RcppExport SEXP _peptideUtils_getModifiedResidues(SEXP idsSEXP, SEXP peptideSeqSEXP, SEXP fastaPathSEXP, SEXP modSepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type ids(idsSEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type peptideSeq(peptideSeqSEXP);
+    Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
     Rcpp::traits::input_parameter< std::string >::type modSep(modSepSEXP);
-    rcpp_result_gen = Rcpp::wrap(getModifiedResidues(fastaPath, ids, peptideSeq, modSep));
+    rcpp_result_gen = Rcpp::wrap(getModifiedResidues(ids, peptideSeq, fastaPath, modSep));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -85,6 +85,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// threeLetterToOne
+Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences, std::string sep_in, std::string sep_out, std::string n_term_out, std::string c_term_out);
+RcppExport SEXP _peptideUtils_threeLetterToOne(SEXP sequencesSEXP, SEXP sep_inSEXP, SEXP sep_outSEXP, SEXP n_term_outSEXP, SEXP c_term_outSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type sep_in(sep_inSEXP);
+    Rcpp::traits::input_parameter< std::string >::type sep_out(sep_outSEXP);
+    Rcpp::traits::input_parameter< std::string >::type n_term_out(n_term_outSEXP);
+    Rcpp::traits::input_parameter< std::string >::type c_term_out(c_term_outSEXP);
+    rcpp_result_gen = Rcpp::wrap(threeLetterToOne(sequences, sep_in, sep_out, n_term_out, c_term_out));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_getSquences", (DL_FUNC) &_peptideUtils_getSquences, 2},
@@ -93,6 +108,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_calcMass", (DL_FUNC) &_peptideUtils_calcMass, 4},
     {"_peptideUtils_calcFormula", (DL_FUNC) &_peptideUtils_calcFormula, 3},
     {"_peptideUtils_oneLetterToThree", (DL_FUNC) &_peptideUtils_oneLetterToThree, 5},
+    {"_peptideUtils_threeLetterToOne", (DL_FUNC) &_peptideUtils_threeLetterToOne, 5},
     {NULL, NULL, 0}
 };
 

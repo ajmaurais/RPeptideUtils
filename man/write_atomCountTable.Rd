@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_atomCountTable.R
 \name{write_atomCountTable}
 \alias{write_atomCountTable}
-\title{Title write default atomCountTable to current working directory}
+\title{Write default atomCountTable to current working directory}
 \usage{
 write_atomCountTable(path = getwd(), overwrite = F)
 }
@@ -13,5 +13,5 @@ write_atomCountTable(path = getwd(), overwrite = F)
 TRUE is sucsssful
 }
 \description{
-Title write default atomCountTable to current working directory
+Write default atomCountTable to current working directory
 }

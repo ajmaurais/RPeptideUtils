@@ -15,5 +15,9 @@ combineMods(mods, sep = "|")
 Modifications combined into a single string
 }
 \description{
-Combined concated mods from multiple peptides into a single string
+Combined concated mods from multiple peptides into a single string.
+}
+\examples{
+combineMods(c('C157', 'C157|C125', 'C50', 'C125'))
+
 }

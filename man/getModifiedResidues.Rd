@@ -4,14 +4,14 @@
 \alias{getModifiedResidues}
 \title{Get locations of modified residues in parent protein}
 \usage{
-getModifiedResidues(fastaPath, ids, peptideSeq, modSep = "|")
+getModifiedResidues(ids, peptideSeq, fastaPath = "", modSep = "|")
 }
 \arguments{
-\item{fastaPath}{path to fasta formated file to look up protein sequences}
-
 \item{ids}{CharacterVector of Uniprot IDs}
 
 \item{peptideSeq}{CharacterVector of peptide sequences containing modifications}
+
+\item{fastaPath}{path to fasta formated file to look up protein sequences}
 
 \item{modSep}{delimiter for multiple modifications}
 }
