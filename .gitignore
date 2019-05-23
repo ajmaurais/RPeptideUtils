@@ -4,6 +4,7 @@
 lib/*
 README.html
 testFiles/*
+src/symbols.rds
 
 # History files
 .Rhistory
