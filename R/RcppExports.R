@@ -115,3 +115,30 @@ threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = 
     .Call(`_peptideUtils_threeLetterToOne`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
 
+#' The function uses charge and m/z filters to remove peptides which would not be
+#' observable by MS. The m/z for peptides in charge states minCharge to maxCharge
+#' are calculated. If the m/z for any charge state is in between minMZ and maxMZ, the
+#' sequence will be appended to peptides.
+#' 
+#' @title Perform a virtual protease digest of a protein.
+#' 
+#' @param sequences StringVector containing prptein sequences
+#' @param ids Names for the slot for each protein's peptides in output.
+#' @param nMissedCleavages number of missed cleavages to allow.
+#' @param cleavagePattern RegEx for protease cleavage pattern.
+#' @param mz_filter Should pepties included in output be filtered by mz?
+#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
+#' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
+#' @param minMz Minimum m/z to allow in peptides.
+#' @param maxMz Maximum m/z to allow in peptides. Set to 0 for no upper bound on m/z.
+#' @param minCharge Minimum charge to consider when calculating m/z.
+#' @param maxCharge Maximum charge to consider when calculating m/z.
+#' @param minLen Minimum peptide length.
+#' @param maxLen Maximum peptide length. Set to 0 for no upper bound on length.
+#' 
+#' @return A list with named elements containing vectors of each input protein's peptids.
+#'
+digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([RK])([^P])", mz_filter = TRUE, residueAtoms = "", atomMasses = "", minMz = 400, maxMz = 1800, minCharge = 1L, maxCharge = 5L, minLen = 6L, maxLen = 0L) {
+    .Call(`_peptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, atomMasses, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
+}
+

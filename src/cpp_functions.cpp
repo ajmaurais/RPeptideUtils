@@ -4,27 +4,29 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <algorithm>
 
 #include <fastaFile.hpp>
 #include <molecularFormula.hpp>
+#include <peptideUtils.hpp>
 #include <utils.hpp>
 
-//Characters representing dynamic modifications
-const char* MOD_CHARS = "*";
+//!Characters representing dynamic modifications
+//const char* MOD_CHARS = "*";
 
 //!Return data files included in an R package
 std::string _getPackageData(std::string filename,
-                            std::string packageName = "peptideUtils")
+														std::string packageName = "peptideUtils")
 {
-  Rcpp::Environment base("package:base");
-  Rcpp::Function sys_file = base["system.file"];
-  Rcpp::StringVector file_path_sv = sys_file(
-    filename,
-    Rcpp::_["package"] = packageName,
-    Rcpp::_["mustWork"] = true
-  );
-  std::string file_path = Rcpp::as<std::string>(file_path_sv);
-  return file_path;
+	Rcpp::Environment base("package:base");
+	Rcpp::Function sys_file = base["system.file"];
+	Rcpp::StringVector file_path_sv = sys_file(
+		filename,
+		Rcpp::_["package"] = packageName,
+		Rcpp::_["mustWork"] = true
+	);
+	std::string file_path = Rcpp::as<std::string>(file_path_sv);
+	return file_path;
 }
 
 //' Get protein sequences for a vector of uniprot IDs
@@ -45,59 +47,18 @@ std::string _getPackageData(std::string filename,
 // [[Rcpp::export]]
 Rcpp::CharacterVector getSquences(const Rcpp::CharacterVector& ids, std::string fastaPath = "")
 {
-  std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
-  
-  Rcpp::CharacterVector ret;
-  
-  utils::FastaFile fasta(_fastaPath);
-  if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
-  
-  size_t len = ids.size();
-  for(size_t i = 0; i < len; i++){
-    ret.push_back(fasta.getSequence(std::string(ids[i])));
-  }
-  
-  return ret;
-}
-
-/**
-Record indices of occurrences of MOD_CHARS in seq
-\param seq peptide sequence containing modifications
-\param modLocs vector populated with locations of locations
-
-\return peptide sequence with mods removed
-*/
-std::string _getModLocs(std::string seq, std::vector<int>& modLocs)
-{
-	modLocs.clear();
-	std::string ret = "";
+	std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
 	
-	//check that n term is not a diff mod
-	for(const char* p = MOD_CHARS; *p; p++)
-	  if(seq[0] == *p)
-	    throw std::runtime_error("Invalid peptide sequence: " + seq);
+	Rcpp::CharacterVector ret;
 	
-	for(size_t i = 0; i < seq.length(); i++)
-	{
-		for(const char* p = MOD_CHARS; *p; p++)
-		{
-			if(seq[i] == *p){
-				seq.erase(i, 1);
-				modLocs.push_back(int(ret.length() - 1));
-				break;
-			}
-		}
-		//exit loop if at end of sequence
-		if(i >= seq.length())
-			break;
-		
-		//Check that current char is letter
-		if(!isalpha(seq[i]))
-			throw std::runtime_error("Invalid peptide sequence: " + seq);
-		
-		//add new amino acid to ret
-		ret.push_back(seq[i]);
+	utils::FastaFile fasta(_fastaPath);
+	if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+	
+	size_t len = ids.size();
+	for(size_t i = 0; i < len; i++){
+		ret.push_back(fasta.getSequence(std::string(ids[i])));
 	}
+	
 	return ret;
 }
 
@@ -123,11 +84,11 @@ std::string makeSequenceFromFullSequence(std::string fs)
 //' 
 // [[Rcpp::export]]
 Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
-                    										  const Rcpp::CharacterVector& peptideSeq,
-                    										  std::string fastaPath = "",
-                    										  std::string modSep = "|")
+																					const Rcpp::CharacterVector& peptideSeq,
+																					std::string fastaPath = "",
+																					std::string modSep = "|")
 {
-  std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+	std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
 	
 	size_t len = ids.size();
 	if(len != peptideSeq.size())
@@ -135,14 +96,14 @@ Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
 	
 	//init FastaFile
 	utils::FastaFile fasta(_fastaPath);
-  	if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+		if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
 	Rcpp::CharacterVector ret(len, "");
 	std::vector<int> modIndex_temp;
 	for(size_t i = 0; i < len; i++)
 	{
 		std::string this_modLocs;
-		std::string seqTemp = _getModLocs(std::string(peptideSeq[i]), modIndex_temp);
+		std::string seqTemp = utils::getModLocs(std::string(peptideSeq[i]), modIndex_temp);
 		for(auto it = modIndex_temp.begin(); it != modIndex_temp.end(); ++it){
 			utils::addChar(fasta.getModifiedResidue(std::string(ids[i]), seqTemp, *it), this_modLocs, modSep);
 		}
@@ -191,26 +152,26 @@ std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 //'
 // [[Rcpp::export]]
 Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
-                             bool monoMass = true,
-                             std::string residueAtoms = "",
-                             std::string atomMasses = "")
+														 bool monoMass = true,
+														 std::string residueAtoms = "",
+														 std::string atomMasses = "")
 {
-  //get data file paths
-  std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
-  std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-  char avg_mono = monoMass ? 'm' : 'a';
-  
-  //init residues
-  utils::Residues residues(residueAtomsPath, atomMassesPath);
-  if(!residues.initialize()) throw std::runtime_error("Error reading required files for calcMass!");
-  
-  size_t len = sequences.size();
-  Rcpp::NumericVector ret(len);
-  for(size_t i = 0; i < len; i++){
-    ret[i] = residues.calcMass(std::string(sequences[i]), avg_mono);
-  }
-  
-  return ret;
+	//get data file paths
+	std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
+	std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+	char avg_mono = monoMass ? 'm' : 'a';
+	
+	//init residues
+	utils::Residues residues(residueAtomsPath, atomMassesPath);
+	if(!residues.initialize()) throw std::runtime_error("Error reading required files for calcMass!");
+	
+	size_t len = sequences.size();
+	Rcpp::NumericVector ret(len);
+	for(size_t i = 0; i < len; i++){
+		ret[i] = residues.calcMass(std::string(sequences[i]), avg_mono);
+	}
+	
+	return ret;
 }
 
 //' Calculate peptide molecular formulas
@@ -226,111 +187,24 @@ Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
 //'
 // [[Rcpp::export]]
 Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences,
-                               bool subscripts = false,
-                               std::string residueAtoms = "")
+															 bool subscripts = false,
+															 std::string residueAtoms = "")
 {
-  //get data file paths
-  std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-  
-  //init residues
-  utils::Residues residues;
-  if(!residues.readAtomCountTable(residueAtomsPath))
-    throw std::runtime_error("Error reading required files for calcFormula!");
-  
-  size_t len = sequences.size();
-  Rcpp::StringVector ret(len);
-  for(size_t i = 0; i < len; i++){
-    ret[i] = residues.calcFormula(std::string(sequences[i]), subscripts);
-  }
-  
-  return ret;
-}
-
-const std::map<char, std::string> _ONE_LETTER_TO_THREE_MAP = {{'A', "Ala"},
-                                                              {'C', "Cys"},
-                                                              {'D', "Asp"},
-                                                              {'E', "Glu"},
-                                                              {'F', "Phe"},
-                                                              {'G', "Gly"},
-                                                              {'H', "His"},
-                                                              {'I', "Ile"},
-                                                              {'K', "Lys"},
-                                                              {'L', "Leu"},
-                                                              {'M', "Met"},
-                                                              {'N', "Asn"},
-                                                              {'P', "Pro"},
-                                                              {'Q', "Gln"},
-                                                              {'R', "Arg"},
-                                                              {'S', "Ser"},
-                                                              {'T', "Thr"},
-                                                              {'U', "Sec"},
-                                                              {'V', "Val"},
-                                                              {'W', "Trp"},
-                                                              {'Y', "Tyr"}};
-
-const std::map<std::string, char> _THREE_LETTER_TO_ONE_MAP = {{"Ala", 'A'},
-                                                              {"Cys", 'C'},
-                                                              {"Asp", 'D'},
-                                                              {"Glu", 'E'},
-                                                              {"Phe", 'F'},
-                                                              {"Gly", 'G'},
-                                                              {"His", 'H'},
-                                                              {"Ile", 'I'},
-                                                              {"Lys", 'K'},
-                                                              {"Leu", 'L'},
-                                                              {"Met", 'M'},
-                                                              {"Asn", 'N'},
-                                                              {"Pro", 'P'},
-                                                              {"Gln", 'Q'},
-                                                              {"Arg", 'R'},
-                                                              {"Ser", 'S'},
-                                                              {"Thr", 'T'},
-                                                              {"Sec", 'U'},
-                                                              {"Val", 'V'},
-                                                              {"Trp", 'W'},
-                                                              {"Tyr", 'Y'}};
-
-std::string oneLetterToThree(std::string seq,
-                             std::string sep_in = "",
-                             std::string sep_out = "",
-                             std::string n_term_out = "",
-                             std::string c_term_out = "")
-{
-  seq = utils::removeSubstrs(sep_in, seq, false);
-  std::string ret_temp = "";
-  std::string add = "";
-  
-  //check that n term is not a diff mod
-  for(const char* p = MOD_CHARS; *p; p++)
-    if(seq[0] == *p)
-      throw std::runtime_error("Invalid peptide sequence: " + seq);
-    
-    for(size_t i = 0; i < seq.length(); i++)
-    {
-      //deal with AA modifications
-      for(const char* p = MOD_CHARS; *p; p++)
-      {
-        if(seq[i] == *p){
-          ret_temp += seq[i];
-          seq.erase(i, 1);
-          break;
-        }
-      }
-      //exit loop if at end of sequence
-      if(i >= seq.length())
-        break;
-      
-      try{
-        add = _ONE_LETTER_TO_THREE_MAP.at(seq[i]);
-      }catch(std::out_of_range e){
-        throw std::out_of_range("Unknown amino acid: " + std::string(1, seq[i]) +
-                                ", in sequence: " + seq);
-      }
-      utils::addChar(add, ret_temp, sep_out);
-    }
-    return ((n_term_out.empty() ? "" : n_term_out + sep_out) +
-            ret_temp +
-            (c_term_out.empty() ? "" : sep_out + c_term_out));
+	//get data file paths
+	std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+	
+	//init residues
+	utils::Residues residues;
+	if(!residues.readAtomCountTable(residueAtomsPath))
+		throw std::runtime_error("Error reading required files for calcFormula!");
+	
+	size_t len = sequences.size();
+	Rcpp::StringVector ret(len);
+	for(size_t i = 0; i < len; i++){
+		ret[i] = residues.calcFormula(std::string(sequences[i]), subscripts);
+	}
+	
+	return ret;
 }
 
 //' Convert from 1 letter amino acid codes to 3
@@ -348,64 +222,19 @@ std::string oneLetterToThree(std::string seq,
 //' 
 // [[Rcpp::export]]
 Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences,
-                                    std::string sep_in = "",
-                                    std::string sep_out = "",
-                                    std::string n_term_out = "",
-                                    std::string c_term_out = "")
+																		std::string sep_in = "",
+																		std::string sep_out = "",
+																		std::string n_term_out = "",
+																		std::string c_term_out = "")
 {
-  size_t len = sequences.size();
-  Rcpp::StringVector ret(len);
-  for(size_t i = 0; i < len; i++){
-    ret[i] = oneLetterToThree(std::string(sequences[i]),
-                              sep_in, sep_out,
-                              n_term_out, c_term_out);
-  }
-  return ret;
-}
-
-std::string threeLetterToOne(std::string seq,
-                             std::string sep_in = "",
-                             std::string sep_out = "",
-                             std::string n_term_out = "",
-                             std::string c_term_out = "")
-{
-  seq = utils::removeSubstrs(sep_in, seq, false);
-  std::string ret_temp = "";
-  std::string add = "";
-  
-  //check that n term is not a diff mod
-  for(const char* p = MOD_CHARS; *p; p++)
-    if(seq[0] == *p)
-      throw std::runtime_error("Invalid peptide sequence: " + seq);
-    
-    for(size_t i = 0; i < seq.length(); i += 3)
-    {
-      //deal with AA modifications
-      for(const char* p = MOD_CHARS; *p; p++)
-      {
-        if(seq[i] == *p){
-          ret_temp += seq[i];
-          seq.erase(i, 1);
-          break;
-        }
-      }
-      //exit loop if at end of sequence
-      if(i >= seq.length())
-        break;
-      
-      try{
-        std::string temp = seq.substr(i, 3);
-        //std::cout << temp << std::endl;
-        add = _THREE_LETTER_TO_ONE_MAP.at(seq.substr(i, 3));
-      }catch(std::out_of_range e){
-        throw std::out_of_range("Unknown amino acid: " + std::string(1, seq[i]) +
-                                ", in sequence: " + seq);
-      }
-      utils::addChar(add, ret_temp, sep_out);
-    }
-    return ((n_term_out.empty() ? "" : n_term_out + sep_out) +
-            ret_temp +
-            (c_term_out.empty() ? "" : sep_out + c_term_out));
+	size_t len = sequences.size();
+	Rcpp::StringVector ret(len);
+	for(size_t i = 0; i < len; i++){
+		ret[i] = utils::oneLetterToThree(std::string(sequences[i]),
+																		 sep_in, sep_out,
+																		 n_term_out, c_term_out);
+	}
+	return ret;
 }
 
 //' Convert from 3 letter amino acid codes to 1
@@ -423,19 +252,101 @@ std::string threeLetterToOne(std::string seq,
 //' 
 // [[Rcpp::export]]
 Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
-                                    std::string sep_in = "",
-                                    std::string sep_out = "",
-                                    std::string n_term_out = "",
-                                    std::string c_term_out = "")
+																		std::string sep_in = "",
+																		std::string sep_out = "",
+																		std::string n_term_out = "",
+																		std::string c_term_out = "")
 {
-  size_t len = sequences.size();
-  Rcpp::StringVector ret(len);
-  for(size_t i = 0; i < len; i++){
-    ret[i] = threeLetterToOne(std::string(sequences[i]),
-                              sep_in, sep_out,
-                              n_term_out, c_term_out);
-  }
-  return ret;
+	size_t len = sequences.size();
+	Rcpp::StringVector ret(len);
+	for(size_t i = 0; i < len; i++){
+		ret[i] = utils::threeLetterToOne(std::string(sequences[i]),
+																		 sep_in, sep_out,
+																		 n_term_out, c_term_out);
+	}
+	return ret;
+}
+
+//' The function uses charge and m/z filters to remove peptides which would not be
+//' observable by MS. The m/z for peptides in charge states minCharge to maxCharge
+//' are calculated. If the m/z for any charge state is in between minMZ and maxMZ, the
+//' sequence will be appended to peptides.
+//' 
+//' @title Perform a virtual protease digest of a protein.
+//' 
+//' @param sequences StringVector containing prptein sequences
+//' @param ids Names for the slot for each protein's peptides in output.
+//' @param nMissedCleavages number of missed cleavages to allow.
+//' @param cleavagePattern RegEx for protease cleavage pattern. The default is the pattern for trypsin.
+//' @param mz_filter Should pepties included in output be filtered by mz?
+//' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
+//' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
+//' @param minMz Minimum m/z to allow in peptides.
+//' @param maxMz Maximum m/z to allow in peptides. Set to 0 for no upper bound on m/z.
+//' @param minCharge Minimum charge to consider when calculating m/z.
+//' @param maxCharge Maximum charge to consider when calculating m/z.
+//' @param minLen Minimum peptide length.
+//' @param maxLen Maximum peptide length. Set to 0 for no upper bound on length.
+//' 
+//' @return A list with named elements containing vectors of each input protein's peptids.
+//' 
+//' @examples
+//' digest(c("KLGAARKLGAGLAKVIGAGIGIGK", "KLGAARKLGAGLAKPVIGAGIGIGK", c('a', 'b')))
+//'
+// [[Rcpp::export]]
+Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
+				  unsigned nMissedCleavages = 0, std::string cleavagePattern = "([RK])([^P])",
+				  bool mz_filter = true, std::string residueAtoms = "", std::string atomMasses = "",
+				  double minMz = 400, double maxMz = 1800,
+				  int minCharge = 1, int maxCharge = 5,
+				  size_t minLen = 6, size_t maxLen = 0)
+{
+	//get file paths for atom mass tables
+	std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
+	std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+	
+	//check args
+	if(ids.size() != sequences.size())
+		throw std::runtime_error("");
+	
+	size_t _maxLen = maxLen == 0 ? std::string::npos : maxLen;
+	Rcpp::List ret;
+	
+	size_t len = sequences.size();
+	for(size_t i = 0; i < len; i++)
+	{
+		std::vector<std::string> peptides_temp;
+		Rcpp::CharacterVector ret_temp;
+		if(mz_filter)
+		{
+			//init residues
+			utils::Residues residues(residueAtomsPath, atomMassesPath);
+			if(!residues.initialize())
+				throw std::runtime_error("Error reading required files for calcMass!");
+			
+			residues.digest(std::string(sequences[i]), peptides_temp, nMissedCleavages, false, cleavagePattern,
+							minMz, maxMz, minCharge, maxCharge);
+			
+			std::sort(peptides_temp.begin(), peptides_temp.end(), utils::strLenCompare());
+			for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it)
+			{
+				size_t len_temp = it->length();
+				if(len_temp >= minLen && (_maxLen == std::string::npos ? true : len_temp <= _maxLen))
+					ret_temp.push_back(it->c_str());
+			}
+			
+		}//end if mz_filter
+		else{
+			utils::digest(std::string(sequences[i]), peptides_temp,
+						  nMissedCleavages, minLen, _maxLen, cleavagePattern);
+			for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it){
+				ret_temp.push_back(it->c_str());
+			}
+		}
+		ret.push_back(ret_temp, std::string(ids[i]));
+	}
+	
+	return ret;
 }
 
 

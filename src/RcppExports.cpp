@@ -100,6 +100,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// digest
+Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids, unsigned nMissedCleavages, std::string cleavagePattern, bool mz_filter, std::string residueAtoms, std::string atomMasses, double minMz, double maxMz, int minCharge, int maxCharge, size_t minLen, size_t maxLen);
+RcppExport SEXP _peptideUtils_digest(SEXP sequencesSEXP, SEXP idsSEXP, SEXP nMissedCleavagesSEXP, SEXP cleavagePatternSEXP, SEXP mz_filterSEXP, SEXP residueAtomsSEXP, SEXP atomMassesSEXP, SEXP minMzSEXP, SEXP maxMzSEXP, SEXP minChargeSEXP, SEXP maxChargeSEXP, SEXP minLenSEXP, SEXP maxLenSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type ids(idsSEXP);
+    Rcpp::traits::input_parameter< unsigned >::type nMissedCleavages(nMissedCleavagesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type cleavagePattern(cleavagePatternSEXP);
+    Rcpp::traits::input_parameter< bool >::type mz_filter(mz_filterSEXP);
+    Rcpp::traits::input_parameter< std::string >::type residueAtoms(residueAtomsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type atomMasses(atomMassesSEXP);
+    Rcpp::traits::input_parameter< double >::type minMz(minMzSEXP);
+    Rcpp::traits::input_parameter< double >::type maxMz(maxMzSEXP);
+    Rcpp::traits::input_parameter< int >::type minCharge(minChargeSEXP);
+    Rcpp::traits::input_parameter< int >::type maxCharge(maxChargeSEXP);
+    Rcpp::traits::input_parameter< size_t >::type minLen(minLenSEXP);
+    Rcpp::traits::input_parameter< size_t >::type maxLen(maxLenSEXP);
+    rcpp_result_gen = Rcpp::wrap(digest(sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, atomMasses, minMz, maxMz, minCharge, maxCharge, minLen, maxLen));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_getSquences", (DL_FUNC) &_peptideUtils_getSquences, 2},
@@ -109,6 +132,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_calcFormula", (DL_FUNC) &_peptideUtils_calcFormula, 3},
     {"_peptideUtils_oneLetterToThree", (DL_FUNC) &_peptideUtils_oneLetterToThree, 5},
     {"_peptideUtils_threeLetterToOne", (DL_FUNC) &_peptideUtils_threeLetterToOne, 5},
+    {"_peptideUtils_digest", (DL_FUNC) &_peptideUtils_digest, 13},
     {NULL, NULL, 0}
 };
 
