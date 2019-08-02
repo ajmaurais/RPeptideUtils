@@ -107,14 +107,28 @@ two_missed <- list('Q8N6Q8' = c("ERTQEK", "GNQNQR", "IGENQK", "LFDPVK", "LKKHWK"
                                 "CGNGLGHEFLNDGPKPGQSRFCIFSSSLKFVPK", "MSFCSFFGGEVFQNHFEPGVYVCAKCGYELFSSR",
                                 "VSCGKCGNGLGHEFLNDGPKPGQSRFCIFSSSLK", "MSFCSFFGGEVFQNHFEPGVYVCAKCGYELFSSRSK"))
 
-test_that('digest results are correct',{
-  expect_equal(digest(sequences, ids, nMissedCleavages = 0, maxCharge = 3), zero_missed)
-  expect_equal(digest(sequences, ids, nMissedCleavages = 1, maxCharge = 3), one_missed)
-  expect_equal(digest(sequences, ids, nMissedCleavages = 2, maxCharge = 3), two_missed)
+atomMasses = system.file('atomMasses.txt', package = 'peptideUtils', mustWork = T)
+residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T)
+
+test_that('mz filter works',{
+  expect_equal(digest(sequences, ids, nMissedCleavages = 0, maxCharge = 3,
+    residueAtoms = residueAtoms, atomMasses = atomMasses), zero_missed)
+  expect_equal(digest(sequences, ids, nMissedCleavages = 1, maxCharge = 3,
+    residueAtoms = residueAtoms, atomMasses = atomMasses), one_missed)
+  expect_equal(digest(sequences, ids, nMissedCleavages = 2, maxCharge = 3,
+    residueAtoms = residueAtoms, atomMasses = atomMasses), two_missed)
+})
+
+test_that('length filter works', {
   expect_equal(digest('GKGGGGGA', 'rando', mz_filter = F), list('rando' = 'GGGGGA'))
   expect_equal(digest('GKGGGGGA', 'rando', mz_filter = F, minLen = 7), list('rando' = character(0)))
   expect_equal(digest('GKGGGGGARTTTTTTTTTTTTTTTTTT', 'rando', mz_filter = F, maxLen = 15), list('rando' = 'GGGGGAR'))
-  expect_equal(digest('GKGGGGGA', 'rando', mz_filter = T), list('rando' = character(0)))
+  expect_equal(digest('GKGGGGGA', 'rando', mz_filter = T,
+    residueAtoms = residueAtoms, atomMasses = atomMasses), list('rando' = character(0)))
+})
+
+test_that('Argument checks work',{
+  expect_error(digest(sequences, c('rando'), mz_filter = F))
 })
 
 #dat <- data.frame(id = character(0), seq = character(0), mc = integer(0), stringsAsFactors = F)

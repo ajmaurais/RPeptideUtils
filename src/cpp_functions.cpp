@@ -11,9 +11,6 @@
 #include <peptideUtils.hpp>
 #include <utils.hpp>
 
-//!Characters representing dynamic modifications
-//const char* MOD_CHARS = "*";
-
 //!Return data files included in an R package
 std::string _getPackageData(std::string filename,
 														std::string packageName = "peptideUtils")
@@ -302,12 +299,17 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 				  size_t minLen = 6, size_t maxLen = 0)
 {
 	//get file paths for atom mass tables
-	std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
-	std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+	std::string atomMassesPath;
+	std::string residueAtomsPath;
 	
+	if(mz_filter){
+		 residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+		 atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
+	}
+
 	//check args
 	if(ids.size() != sequences.size())
-		throw std::runtime_error("");
+		throw std::runtime_error("sequences and ids must be the same length!");
 	
 	size_t _maxLen = maxLen == 0 ? std::string::npos : maxLen;
 	Rcpp::List ret;
