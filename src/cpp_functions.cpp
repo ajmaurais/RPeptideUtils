@@ -35,14 +35,14 @@ std::string _getPackageData(std::string filename,
 //' 
 //' @examples
 //' #By default the fasta file included in the package containing human protein sequences is used.
-//' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
+//' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
 //' 
 //' #A fasta file can also be manually spedified.
 //' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
-//' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
+//' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 //' 
 // [[Rcpp::export]]
-Rcpp::CharacterVector getSquences(const Rcpp::CharacterVector& ids, std::string fastaPath = "")
+Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string fastaPath = "")
 {
 	std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
 	

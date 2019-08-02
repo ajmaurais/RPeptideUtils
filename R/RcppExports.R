@@ -10,14 +10,14 @@
 #' 
 #' @examples
 #' #By default the fasta file included in the package containing human protein sequences is used.
-#' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
+#' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
 #' 
 #' #A fasta file can also be manually spedified.
 #' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
-#' getSquences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
+#' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 #' 
-getSquences <- function(ids, fastaPath = "") {
-    .Call(`_peptideUtils_getSquences`, ids, fastaPath)
+getSequences <- function(ids, fastaPath = "") {
+    .Call(`_peptideUtils_getSequences`, ids, fastaPath)
 }
 
 #' Get locations of modified residues in parent protein

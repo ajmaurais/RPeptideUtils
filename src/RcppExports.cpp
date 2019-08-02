@@ -5,15 +5,15 @@
 
 using namespace Rcpp;
 
-// getSquences
-Rcpp::CharacterVector getSquences(const Rcpp::CharacterVector& ids, std::string fastaPath);
-RcppExport SEXP _peptideUtils_getSquences(SEXP idsSEXP, SEXP fastaPathSEXP) {
+// getSequences
+Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string fastaPath);
+RcppExport SEXP _peptideUtils_getSequences(SEXP idsSEXP, SEXP fastaPathSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type ids(idsSEXP);
     Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
-    rcpp_result_gen = Rcpp::wrap(getSquences(ids, fastaPath));
+    rcpp_result_gen = Rcpp::wrap(getSequences(ids, fastaPath));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -125,7 +125,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_peptideUtils_getSquences", (DL_FUNC) &_peptideUtils_getSquences, 2},
+    {"_peptideUtils_getSequences", (DL_FUNC) &_peptideUtils_getSequences, 2},
     {"_peptideUtils_getModifiedResidues", (DL_FUNC) &_peptideUtils_getModifiedResidues, 4},
     {"_peptideUtils_combineMods", (DL_FUNC) &_peptideUtils_combineMods, 2},
     {"_peptideUtils_calcMass", (DL_FUNC) &_peptideUtils_calcMass, 4},
