@@ -47,6 +47,16 @@ Rscript -e "install.packages('.', repo = NULL, type = 'source')"
 [2] "MSTVHEILCKLSLEGDH..."  
 ```
 
+### Perform virtual trypsin digestions
+```R
+> digest(c("KLGAARKLGAGLAKVIGAGIGIGK", "KLGAARKLGAGLAKPVIGAGIGIGK"), c('a', 'b'))
+$a
+[1] "LGAGLAK"    "VIGAGIGIGK"
+
+$b
+[1] "LGAGLAKPVIGAGIGIGK"
+```
+
 ### Convert between 1 and 3 letter amino acid codes
 
 ```R
