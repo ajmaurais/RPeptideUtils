@@ -274,11 +274,11 @@ Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
 //' 
 //' @title Perform a virtual protease digest of a protein.
 //' 
-//' @param sequences StringVector containing prptein sequences
+//' @param sequences StringVector containing protein sequences. Whitespace will automatically be removed.
 //' @param ids Names for the slot for each protein's peptides in output.
 //' @param nMissedCleavages number of missed cleavages to allow.
 //' @param cleavagePattern RegEx for protease cleavage pattern. The default is the pattern for trypsin.
-//' @param mz_filter Should pepties included in output be filtered by mz?
+//' @param mz_filter Should peptides included in output be filtered by mz?
 //' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
 //' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 //' @param minMz Minimum m/z to allow in peptides.
@@ -288,14 +288,14 @@ Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
 //' @param minLen Minimum peptide length.
 //' @param maxLen Maximum peptide length. Set to 0 for no upper bound on length.
 //' 
-//' @return A list with named elements containing vectors of each input protein's peptids.
+//' @return A list with named elements containing vectors of each input protein's peptides.
 //' 
 //' @examples
-//' digest(c("KLGAARKLGAGLAKVIGAGIGIGK", "KLGAARKLGAGLAKPVIGAGIGIGK", c('a', 'b')))
+//' digest(c("KLGAARKLGAGLAKVIGAGIGIGK", "KLGAARKLGAGLAKPVIGAGIGIGK"), c('a', 'b'))
 //'
 // [[Rcpp::export]]
 Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
-				  unsigned nMissedCleavages = 0, std::string cleavagePattern = "([RK])([^P])",
+				  unsigned nMissedCleavages = 0, std::string cleavagePattern = "([RK])(?=[^P])",
 				  bool mz_filter = true, std::string residueAtoms = "", std::string atomMasses = "",
 				  double minMz = 400, double maxMz = 1800,
 				  int minCharge = 1, int maxCharge = 5,
@@ -324,7 +324,7 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 			if(!residues.initialize())
 				throw std::runtime_error("Error reading required files for calcMass!");
 			
-			residues.digest(std::string(sequences[i]), peptides_temp, nMissedCleavages, false, cleavagePattern,
+			residues.digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp, nMissedCleavages, false, cleavagePattern,
 							minMz, maxMz, minCharge, maxCharge);
 			
 			std::sort(peptides_temp.begin(), peptides_temp.end(), utils::strLenCompare());
@@ -337,7 +337,7 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 			
 		}//end if mz_filter
 		else{
-			utils::digest(std::string(sequences[i]), peptides_temp,
+			utils::digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp,
 						  nMissedCleavages, minLen, _maxLen, cleavagePattern);
 			for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it){
 				ret_temp.push_back(it->c_str());
