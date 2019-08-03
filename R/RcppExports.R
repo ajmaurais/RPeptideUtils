@@ -20,6 +20,34 @@ getSequences <- function(ids, fastaPath = "") {
     .Call(`_peptideUtils_getSequences`, ids, fastaPath)
 }
 
+#' Get n residues before query in ref. If n overruns ref, the maximum number of characters will be returned.
+#' 
+#' @title get n residues before query.
+#' @param query String to search for.
+#' @param ref String to search in.
+#' @param n Number of residues in output.
+#' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
+#' 
+#' @return n residues before query.
+#'
+nBefore <- function(query, ref, n = 1L, noExcept = FALSE) {
+    .Call(`_peptideUtils_nBefore`, query, ref, n, noExcept)
+}
+
+#' Get n residues after query in ref. If n overruns ref, the maximum number of characters will be returned.
+#' 
+#' @title get n residues after query.
+#' @param query String to search for.
+#' @param ref String to search in.
+#' @param n Number of residues in output.
+#' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
+#' 
+#' @return n residues after query.
+#'
+nAfter <- function(query, ref, n = 1L, noExcept = FALSE) {
+    .Call(`_peptideUtils_nAfter`, query, ref, n, noExcept)
+}
+
 #' Get locations of modified residues in parent protein
 #'
 #' @title Get locations of modified residues in parent protein

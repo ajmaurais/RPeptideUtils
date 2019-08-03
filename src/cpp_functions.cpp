@@ -48,7 +48,7 @@ Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string
 	
 	Rcpp::CharacterVector ret;
 	
-	utils::FastaFile fasta(_fastaPath);
+	utils::FastaFile fasta(utils::absPath(_fastaPath));
 	if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 	
 	size_t len = ids.size();
@@ -56,6 +56,60 @@ Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string
 		ret.push_back(fasta.getSequence(std::string(ids[i])));
 	}
 	
+	return ret;
+}
+
+//' Get n residues before query in ref. If n overruns ref, the maximum number of characters will be returned.
+//' 
+//' @title get n residues before query.
+//' @param query String to search for.
+//' @param ref String to search in.
+//' @param n Number of residues in output.
+//' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
+//' 
+//' @return n residues before query.
+//'
+// [[Rcpp::export]]
+Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
+	unsigned n = 1, bool noExcept = false)
+{
+	Rcpp::CharacterVector ret;
+
+	size_t len = query.size();
+	if(len != ref.size())
+		throw std::runtime_error("query and ref must be the same length!");
+
+	for(size_t i = 0; i < len; i++){
+		ret.push_back(utils::nBefore(std::string(query[i]), std::string(ref[i]), n, noExcept));
+	}
+
+	return ret;
+}
+
+//' Get n residues after query in ref. If n overruns ref, the maximum number of characters will be returned.
+//' 
+//' @title get n residues after query.
+//' @param query String to search for.
+//' @param ref String to search in.
+//' @param n Number of residues in output.
+//' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
+//' 
+//' @return n residues after query.
+//'
+// [[Rcpp::export]]
+Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
+	unsigned n = 1, bool noExcept = false)
+{
+	Rcpp::CharacterVector ret;
+
+	size_t len = query.size();
+	if(len != ref.size())
+		throw std::runtime_error("query and ref must be the same length!");
+
+	for(size_t i = 0; i < len; i++){
+		ret.push_back(utils::nAfter(std::string(query[i]), std::string(ref[i]), n, noExcept));
+	}
+
 	return ret;
 }
 
