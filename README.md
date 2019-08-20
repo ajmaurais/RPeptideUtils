@@ -42,7 +42,7 @@ Rscript -e "install.packages('.', repo = NULL, type = 'source')"
 
 ### Look up protein sequences by Uniprot ID
 ```R
-> getSquences(c("A0MZ66", "A6NMY6"))
+> getSequences(c("A0MZ66", "A6NMY6"))
 [1] "MNSSDEEKQLQLITSLK..."
 [2] "MSTVHEILCKLSLEGDH..."  
 ```
