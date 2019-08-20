@@ -48,7 +48,7 @@ Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string
 	
 	Rcpp::CharacterVector ret;
 	
-	utils::FastaFile fasta(utils::absPath(_fastaPath));
+	utils::FastaFile fasta(true, utils::absPath(_fastaPath));
 	if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 	
 	size_t len = ids.size();
@@ -135,9 +135,7 @@ std::string makeSequenceFromFullSequence(std::string fs)
 //' 
 // [[Rcpp::export]]
 Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
-																					const Rcpp::CharacterVector& peptideSeq,
-																					std::string fastaPath = "",
-																					std::string modSep = "|")
+	const Rcpp::CharacterVector& peptideSeq, std::string fastaPath = "", std::string modSep = "|")
 {
 	std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
 	
@@ -146,7 +144,7 @@ Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
 		throw std::runtime_error("ids.size() != peptideSeq.size()");
 	
 	//init FastaFile
-	utils::FastaFile fasta(_fastaPath);
+	utils::FastaFile fasta(true, _fastaPath);
 		if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
 	Rcpp::CharacterVector ret(len, "");
