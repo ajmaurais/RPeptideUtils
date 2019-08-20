@@ -1,12 +1,6 @@
 
 context("calcMass")
 
-#library(peptideUtils)
-
-#test_that("cpp tests pass", {
-#  expect_cpp_tests_pass("peptideUtils")
-#})
-
 standards <- data.frame(sequence = c("ACLLPETVNMEEYPYDAEY", "ALCAEFK", "AQCPIVER", "CTGGEVGATSALAPK", "IVSNASCTTNCLAPLAK",
                                      "LDADIHTNTCR", "LLYVSCNPR", "LPACVVDCGTGYTK", "MIVECVMNNATCTR", "SEGLPSECR", "TPCGEGSK"),
                         formula = c("C102H147N21O36S2", "C37H59N9O11S", "C40H69N13O13S", "C58H99N17O22S",
@@ -18,7 +12,7 @@ standards <- data.frame(sequence = c("ACLLPETVNMEEYPYDAEY", "ALCAEFK", "AQCPIVER
                                              1540.772, 1699.010, 1034.110, 834.900),
                         stringsAsFactors = F)
 
-test_that("corect masses are calcualted",{
+test_that("Correct masses are calculated",{
   
   #check exact mass against standards
   expect_equal(peptideUtils::calcMass(standards$sequence,
@@ -38,7 +32,7 @@ test_that("corect masses are calcualted",{
 
 context('calcFormula')
 
-test_that("corect molecular formulas are calcualted",{
+test_that("Correct molecular formulas are calculated",{
   
   #check exact mass against standards
   expect_equal(peptideUtils::calcFormula(standards$sequence,
@@ -46,3 +40,31 @@ test_that("corect molecular formulas are calcualted",{
                standards$formula)
 })
 
+context('FastaFile')
+
+test_that('Correct residues are modified', {
+  expect_equal(peptideUtils::getModifiedResidues(c("Q00839", "Q9HCS7", "Q7L014"),
+                                                 c("APQC*LGK", "FADMEC*K", "GAEIIVC*TPGR"),
+                                                 system.file('extdata/Human_uniprot-reviewed_20171020.fasta',
+                                                  package = 'peptideUtils', mustWork = T)),
+               c("C562", "C676", "C501"))
+})
+
+test_that('Correct protein sequences', {
+  expect_equal(peptideUtils::getSequences(c("A0MZ66", "A6NMY6"),
+                                          system.file('extdata/Human_uniprot-reviewed_20171020.fasta',
+                                            package = 'peptideUtils', mustWork = T)),
+               c(paste0("MNSSDEEKQLQLITSLKEQAIGEYEDLRAENQKTKEKCDKIRQERDEAVKKLEEFQKISHMVIEEVNFMQNHLEIEKTCRESAEALAT",
+                        "KLNKENKTLKRISMLYMAKLGPDVITEEINIDDEDSTTDTDGAAETCVSVQCQKQIKELRDQIVSVQEEKKILAIELENLKSKLVEVI",
+                        "EEVNKVKQEKTVLNSEVLEQRKVLEKCNRVSMLAVEEYEEMQVNLELEKDLRKKAESFAQEMFIEQNKLKRQSHLLLQSSIPDQQLLK",
+                        "ALDENAKLTQQLEEERIQHQQKVKELEEQLENETLHKEIHNLKQQLELLEEDKKELELKYQNSEEKARNLKHSVDELQKRVNQSENSV",
+                        "PPPPPPPPPLPPPPPNPIRSLMSMIRKRSHPSGSGAKKEKATQPETTEEVTDLKRQAVEEMMDRIKKGVHLRPVNQTARPKTKPESSK",
+                        "GCESAVDELKGILGTLNKSTSSRSLKSLDPENSETELERILRRRKVTAEADSSSPTGILATSESKSMPVLGSVSSVTKTALNKKTLEA",
+                        "EFNSPSPPTPEPGEGPRKLEGCTSSKVTFQPPSSIGCRKKYIDGEKQAEPVVVLDPVSTHEPQTKDQVAEKDPTQHKEDEGEIQPENK",
+                        "EDSIENVRETDSSNC", collapse = ''), 
+                 paste0("MSTVHEILCKLSLEGDHSTPPSAYGSVKAYTNFDAERDALNIETAIKTKGVDEVTIVNIVTNRDNAQRQDIVFSYQRRTKKELASALK",
+                        "SALSGHLETVILGLLKTPAQYDASELKASMKGLGTDEDSLIEIICSRTNQELQEINRVYKEMYKTDLEKDIISDTSGDFRKLMVALAK",
+                        "GRRAEDGSVIDYELIDQDAQDLYDAGVKRKGTDVPKWISIMTERSVPHLQKVFDRYKSYSPYDMLESIRKEVKGDLENAFLNLVQRIQ",
+                        "NKPLYFADQLYDSMKGKGTRDKVLIRIMVSRSEVDMLKIRSEFKRKYGKSLYYYIQQDTKGDYQKALLYLCGGDD", colapse = ''))
+  )
+})
