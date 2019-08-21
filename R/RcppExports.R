@@ -143,6 +143,29 @@ threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = 
     .Call(`_peptideUtils_threeLetterToOne`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
 
+#' Read all sequences in fasta file. Reverse matches are automatically skipped.
+#'
+#' @title Read fasta file.
+#' 
+#' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
+#' @param n_entries Number of entries to read. If 0, all entires are read.
+#' @return DataFrame with columns for ID and sequence.
+#'
+readFasta <- function(fastaPath = "", n_entries = 0L) {
+    .Call(`_peptideUtils_readFasta`, fastaPath, n_entries)
+}
+
+#' Get metadata about a fasta file.
+#' 
+#' @title Get fasta file info.
+#' 
+#' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
+#' @return List with slots for sequence count and vector of entry IDs contained in file.
+#' 
+fastaInfo <- function(fastaPath = "") {
+    .Call(`_peptideUtils_fastaInfo`, fastaPath)
+}
+
 #' The function uses charge and m/z filters to remove peptides which would not be
 #' observable by MS. The m/z for peptides in charge states minCharge to maxCharge
 #' are calculated. If the m/z for any charge state is in between minMZ and maxMZ, the

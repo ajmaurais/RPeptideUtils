@@ -128,6 +128,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// readFasta
+Rcpp::DataFrame readFasta(std::string fastaPath, long n_entries);
+RcppExport SEXP _peptideUtils_readFasta(SEXP fastaPathSEXP, SEXP n_entriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
+    Rcpp::traits::input_parameter< long >::type n_entries(n_entriesSEXP);
+    rcpp_result_gen = Rcpp::wrap(readFasta(fastaPath, n_entries));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fastaInfo
+Rcpp::List fastaInfo(std::string fastaPath);
+RcppExport SEXP _peptideUtils_fastaInfo(SEXP fastaPathSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
+    rcpp_result_gen = Rcpp::wrap(fastaInfo(fastaPath));
+    return rcpp_result_gen;
+END_RCPP
+}
 // digest
 Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids, unsigned nMissedCleavages, std::string cleavagePattern, bool mz_filter, std::string residueAtoms, std::string atomMasses, double minMz, double maxMz, int minCharge, int maxCharge, size_t minLen, size_t maxLen);
 RcppExport SEXP _peptideUtils_digest(SEXP sequencesSEXP, SEXP idsSEXP, SEXP nMissedCleavagesSEXP, SEXP cleavagePatternSEXP, SEXP mz_filterSEXP, SEXP residueAtomsSEXP, SEXP atomMassesSEXP, SEXP minMzSEXP, SEXP maxMzSEXP, SEXP minChargeSEXP, SEXP maxChargeSEXP, SEXP minLenSEXP, SEXP maxLenSEXP) {
@@ -162,6 +185,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_calcFormula", (DL_FUNC) &_peptideUtils_calcFormula, 3},
     {"_peptideUtils_oneLetterToThree", (DL_FUNC) &_peptideUtils_oneLetterToThree, 5},
     {"_peptideUtils_threeLetterToOne", (DL_FUNC) &_peptideUtils_threeLetterToOne, 5},
+    {"_peptideUtils_readFasta", (DL_FUNC) &_peptideUtils_readFasta, 2},
+    {"_peptideUtils_fastaInfo", (DL_FUNC) &_peptideUtils_fastaInfo, 1},
     {"_peptideUtils_digest", (DL_FUNC) &_peptideUtils_digest, 13},
     {NULL, NULL, 0}
 };

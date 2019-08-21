@@ -12,8 +12,7 @@
 #include <utils.hpp>
 
 //!Return data files included in an R package
-std::string _getPackageData(std::string filename,
-														std::string packageName = "peptideUtils")
+std::string _getPackageData(std::string filename, std::string packageName = "peptideUtils")
 {
 	Rcpp::Environment base("package:base");
 	Rcpp::Function sys_file = base["system.file"];
@@ -314,6 +313,71 @@ Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
 																		 n_term_out, c_term_out);
 	}
 	return ret;
+}
+
+
+//' Read all sequences in fasta file. Reverse matches are automatically skipped.
+//'
+//' @title Read fasta file.
+//' 
+//' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
+//' @param n_entries Number of entries to read. If 0, all entires are read.
+//' @return DataFrame with columns for ID and sequence.
+//'
+// [[Rcpp::export]]
+Rcpp::DataFrame readFasta(std::string fastaPath = "", long n_entries = 0)
+{
+	std::string _fastaPath = fastaPath.empty() ?
+		_getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+
+	//init FastaFile
+	utils::FastaFile fasta(true, _fastaPath);
+		if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+
+	Rcpp::CharacterVector ids, seqs;
+	
+	size_t len = fasta.getSequenceCount();
+	if(n_entries > len)
+		throw std::runtime_error("n_entries more than the number of entries in file!");
+	len = n_entries == 0 ? len : n_entries;
+
+	for(size_t i = 0; i < len; i++)
+	{
+		ids.push_back(fasta.getIndexID(i).c_str());
+		seqs.push_back(fasta.at(i));
+	}
+
+	return Rcpp::DataFrame::create(Rcpp::Named("id") = ids,
+								   Rcpp::Named("sequence") = seqs,
+								   Rcpp::Named("stringsAsFactors") = false);
+}
+
+//' Get metadata about a fasta file.
+//' 
+//' @title Get fasta file info.
+//' 
+//' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
+//' @return List with slots for sequence count and vector of entry IDs contained in file.
+//' 
+// [[Rcpp::export]]
+Rcpp::List fastaInfo(std::string fastaPath = "")
+{
+	std::string _fastaPath = fastaPath.empty() ?
+		_getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+
+	//init FastaFile
+	utils::FastaFile fasta(true, _fastaPath);
+		if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+
+	size_t len = fasta.getSequenceCount();
+	Rcpp::CharacterVector ids(len, "");
+	for(size_t i = 0; i < len; i++){
+		ids[i] = fasta.getIndexID(i);
+	}
+
+	return Rcpp::List::create(Rcpp::Named("seq_count") = len,
+							  Rcpp::Named("path") = fastaPath,
+							  Rcpp::Named("ids") = ids);
 }
 
 //' The function uses charge and m/z filters to remove peptides which would not be
