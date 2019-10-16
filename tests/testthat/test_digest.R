@@ -107,16 +107,15 @@ two_missed <- list('Q8N6Q8' = c("ERTQEK", "GNQNQR", "IGENQK", "LFDPVK", "LKKHWK"
                                 "CGNGLGHEFLNDGPKPGQSRFCIFSSSLKFVPK", "MSFCSFFGGEVFQNHFEPGVYVCAKCGYELFSSR",
                                 "VSCGKCGNGLGHEFLNDGPKPGQSRFCIFSSSLK", "MSFCSFFGGEVFQNHFEPGVYVCAKCGYELFSSRSK"))
 
-atomMasses = system.file('atomMasses.txt', package = 'peptideUtils', mustWork = T)
 residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T)
 
 test_that('mz filter works',{
   expect_equal(digest(sequences, ids, nMissedCleavages = 0, maxCharge = 3,
-    residueAtoms = residueAtoms, atomMasses = atomMasses), zero_missed)
+    residueAtoms = residueAtoms), zero_missed)
   expect_equal(digest(sequences, ids, nMissedCleavages = 1, maxCharge = 3,
-    residueAtoms = residueAtoms, atomMasses = atomMasses), one_missed)
+    residueAtoms = residueAtoms), one_missed)
   expect_equal(digest(sequences, ids, nMissedCleavages = 2, maxCharge = 3,
-    residueAtoms = residueAtoms, atomMasses = atomMasses), two_missed)
+    residueAtoms = residueAtoms), two_missed)
 })
 
 test_that('length filter works', {
@@ -124,7 +123,7 @@ test_that('length filter works', {
   expect_equal(digest('GKGGGGGA', 'rando', mz_filter = F, minLen = 7), list('rando' = character(0)))
   expect_equal(digest('GKGGGGGARTTTTTTTTTTTTTTTTTT', 'rando', mz_filter = F, maxLen = 15), list('rando' = 'GGGGGAR'))
   expect_equal(digest('GKGGGGGA', 'rando', mz_filter = T,
-    residueAtoms = residueAtoms, atomMasses = atomMasses), list('rando' = character(0)))
+    residueAtoms = residueAtoms), list('rando' = character(0)))
 })
 
 test_that('Argument checks work',{

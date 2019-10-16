@@ -16,14 +16,12 @@ test_that("Correct masses are calculated",{
   
   #check exact mass against standards
   expect_equal(peptideUtils::calcMass(standards$sequence,
-                                      atomMasses = system.file('atomMasses.txt', package = 'peptideUtils', mustWork = T),
                                       residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T)),
                standards$exact_mass, 
                tolerance = 1e-3)
   
   #check avg mass against standards
   expect_equal(peptideUtils::calcMass(standards$sequence,
-                                      atomMasses = system.file('atomMasses.txt', package = 'peptideUtils', mustWork = T),
                                       residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T),
                                       monoMass = F),
                standards$molecular_weight, 

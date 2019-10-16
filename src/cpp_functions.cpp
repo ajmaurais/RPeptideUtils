@@ -192,7 +192,6 @@ std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 //' @param sequences Peptide sequences
 //' @param monoMass Should monoisotopic mass be calculated. If false, average mass is calculated.
 //' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
-//' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 //' @return vector of peptide masses.
 //'
 //' @examples
@@ -200,17 +199,15 @@ std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 //'
 // [[Rcpp::export]]
 Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
-														 bool monoMass = true,
-														 std::string residueAtoms = "",
-														 std::string atomMasses = "")
+							 bool monoMass = true,
+							 std::string residueAtoms = "")
 {
 	//get data file paths
-	std::string atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
 	std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
 	char avg_mono = monoMass ? 'm' : 'a';
 	
 	//init residues
-	utils::Residues residues(residueAtomsPath, atomMassesPath);
+	utils::Residues residues(residueAtomsPath);
 	if(!residues.initialize()) throw std::runtime_error("Error reading required files for calcMass!");
 	
 	size_t len = sequences.size();
@@ -243,7 +240,7 @@ Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences,
 	
 	//init residues
 	utils::Residues residues;
-	if(!residues.readAtomCountTable(residueAtomsPath))
+	if(!residues.initialize(residueAtomsPath))
 		throw std::runtime_error("Error reading required files for calcFormula!");
 	
 	size_t len = sequences.size();
@@ -393,7 +390,6 @@ Rcpp::List fastaInfo(std::string fastaPath = "")
 //' @param cleavagePattern RegEx for protease cleavage pattern. The default is the pattern for trypsin.
 //' @param mz_filter Should peptides included in output be filtered by mz?
 //' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
-//' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 //' @param minMz Minimum m/z to allow in peptides.
 //' @param maxMz Maximum m/z to allow in peptides. Set to 0 for no upper bound on m/z.
 //' @param minCharge Minimum charge to consider when calculating m/z.
@@ -409,18 +405,16 @@ Rcpp::List fastaInfo(std::string fastaPath = "")
 // [[Rcpp::export]]
 Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 				  unsigned nMissedCleavages = 0, std::string cleavagePattern = "([RK])(?=[^P])",
-				  bool mz_filter = true, std::string residueAtoms = "", std::string atomMasses = "",
+				  bool mz_filter = true, std::string residueAtoms = "",
 				  double minMz = 400, double maxMz = 1800,
 				  int minCharge = 1, int maxCharge = 5,
 				  size_t minLen = 6, size_t maxLen = 0)
 {
 	//get file paths for atom mass tables
-	std::string atomMassesPath;
 	std::string residueAtomsPath;
 	
 	if(mz_filter){
 		 residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-		 atomMassesPath = atomMasses.empty() ? _getPackageData("atomMasses.txt") : atomMasses;
 	}
 
 	//check args
@@ -438,7 +432,7 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 		if(mz_filter)
 		{
 			//init residues
-			utils::Residues residues(residueAtomsPath, atomMassesPath);
+			utils::Residues residues(residueAtomsPath);
 			if(!residues.initialize())
 				throw std::runtime_error("Error reading required files for calcMass!");
 			

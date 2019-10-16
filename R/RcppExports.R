@@ -84,14 +84,13 @@ combineMods <- function(mods, sep = '|') {
 #' @param sequences Peptide sequences
 #' @param monoMass Should monoisotopic mass be calculated. If false, average mass is calculated.
 #' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
-#' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 #' @return vector of peptide masses.
 #'
 #' @examples
 #' calcMass(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"))
 #'
-calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "", atomMasses = "") {
-    .Call(`_peptideUtils_calcMass`, sequences, monoMass, residueAtoms, atomMasses)
+calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "") {
+    .Call(`_peptideUtils_calcMass`, sequences, monoMass, residueAtoms)
 }
 
 #' Calculate peptide molecular formulas
@@ -179,7 +178,6 @@ fastaInfo <- function(fastaPath = "") {
 #' @param cleavagePattern RegEx for protease cleavage pattern. The default is the pattern for trypsin.
 #' @param mz_filter Should peptides included in output be filtered by mz?
 #' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
-#' @param atomMasses Path to atomMasses file. If blank, the default file included in the package is used.
 #' @param minMz Minimum m/z to allow in peptides.
 #' @param maxMz Maximum m/z to allow in peptides. Set to 0 for no upper bound on m/z.
 #' @param minCharge Minimum charge to consider when calculating m/z.
@@ -192,7 +190,7 @@ fastaInfo <- function(fastaPath = "") {
 #' @examples
 #' digest(c("KLGAARKLGAGLAKVIGAGIGIGK", "KLGAARKLGAGLAKPVIGAGIGIGK"), c('a', 'b'))
 #'
-digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([RK])(?=[^P])", mz_filter = TRUE, residueAtoms = "", atomMasses = "", minMz = 400, maxMz = 1800, minCharge = 1L, maxCharge = 5L, minLen = 6L, maxLen = 0L) {
-    .Call(`_peptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, atomMasses, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
+digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([RK])(?=[^P])", mz_filter = TRUE, residueAtoms = "", minMz = 400, maxMz = 1800, minCharge = 1L, maxCharge = 5L, minLen = 6L, maxLen = 0L) {
+    .Call(`_peptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
 }
 
