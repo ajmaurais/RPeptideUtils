@@ -6,8 +6,8 @@
 \usage{
 digest(sequences, ids, nMissedCleavages = 0L,
   cleavagePattern = "([RK])(?=[^P])", mz_filter = TRUE,
-  residueAtoms = "", atomMasses = "", minMz = 400, maxMz = 1800,
-  minCharge = 1L, maxCharge = 5L, minLen = 6L, maxLen = 0L)
+  residueAtoms = "", minMz = 400, maxMz = 1800, minCharge = 1L,
+  maxCharge = 5L, minLen = 6L, maxLen = 0L)
 }
 \arguments{
 \item{sequences}{StringVector containing protein sequences. Whitespace will automatically be removed.}
@@ -21,8 +21,6 @@ digest(sequences, ids, nMissedCleavages = 0L,
 \item{mz_filter}{Should peptides included in output be filtered by mz?}
 
 \item{residueAtoms}{Path to residueAtoms file. If blank, the default file included in the package is used.}
-
-\item{atomMasses}{Path to atomMasses file. If blank, the default file included in the package is used.}
 
 \item{minMz}{Minimum m/z to allow in peptides.}
 

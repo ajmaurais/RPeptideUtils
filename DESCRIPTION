@@ -1,7 +1,7 @@
 Package: peptideUtils
 Type: Package
 Title: Wraps useful c++ functions for dealing with peptide data in R.
-Version: 1.0
+Version: 1.0.1
 Date: 2019-04-25
 Author: Aaron Maurais <aaron.maurais@bc.edu>
 Maintainer: Aaron Maurais <aaron.maurais@bc.edu>

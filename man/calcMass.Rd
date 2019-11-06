@@ -4,8 +4,7 @@
 \alias{calcMass}
 \title{Calculate peptide masses}
 \usage{
-calcMass(sequences, monoMass = TRUE, residueAtoms = "",
-  atomMasses = "")
+calcMass(sequences, monoMass = TRUE, residueAtoms = "")
 }
 \arguments{
 \item{sequences}{Peptide sequences}
@@ -13,8 +12,6 @@ calcMass(sequences, monoMass = TRUE, residueAtoms = "",
 \item{monoMass}{Should monoisotopic mass be calculated. If false, average mass is calculated.}
 
 \item{residueAtoms}{Path to residueAtoms file. If blank, the default file included in the package is used.}
-
-\item{atomMasses}{Path to atomMasses file. If blank, the default file included in the package is used.}
 }
 \value{
 vector of peptide masses.

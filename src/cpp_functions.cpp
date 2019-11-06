@@ -208,7 +208,7 @@ Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
 	
 	//init residues
 	utils::Residues residues(residueAtomsPath);
-	if(!residues.initialize()) throw std::runtime_error("Error reading required files for calcMass!");
+	if(!residues.initialize(false)) throw std::runtime_error("Error reading required files for calcMass!");
 	
 	size_t len = sequences.size();
 	Rcpp::NumericVector ret(len);
