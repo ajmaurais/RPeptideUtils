@@ -150,6 +150,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// transpose_sequence
+Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences, const Rcpp::NumericVector& quantification, const std::string& protein_seq);
+RcppExport SEXP _peptideUtils_transpose_sequence(SEXP peptide_sequencesSEXP, SEXP quantificationSEXP, SEXP protein_seqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type peptide_sequences(peptide_sequencesSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type quantification(quantificationSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type protein_seq(protein_seqSEXP);
+    rcpp_result_gen = Rcpp::wrap(transpose_sequence(peptide_sequences, quantification, protein_seq));
+    return rcpp_result_gen;
+END_RCPP
+}
 // digest
 Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids, unsigned nMissedCleavages, std::string cleavagePattern, bool mz_filter, std::string residueAtoms, double minMz, double maxMz, int minCharge, int maxCharge, size_t minLen, size_t maxLen);
 RcppExport SEXP _peptideUtils_digest(SEXP sequencesSEXP, SEXP idsSEXP, SEXP nMissedCleavagesSEXP, SEXP cleavagePatternSEXP, SEXP mz_filterSEXP, SEXP residueAtomsSEXP, SEXP minMzSEXP, SEXP maxMzSEXP, SEXP minChargeSEXP, SEXP maxChargeSEXP, SEXP minLenSEXP, SEXP maxLenSEXP) {
@@ -185,6 +198,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_threeLetterToOne", (DL_FUNC) &_peptideUtils_threeLetterToOne, 5},
     {"_peptideUtils_readFasta", (DL_FUNC) &_peptideUtils_readFasta, 2},
     {"_peptideUtils_fastaInfo", (DL_FUNC) &_peptideUtils_fastaInfo, 1},
+    {"_peptideUtils_transpose_sequence", (DL_FUNC) &_peptideUtils_transpose_sequence, 3},
     {"_peptideUtils_digest", (DL_FUNC) &_peptideUtils_digest, 12},
     {NULL, NULL, 0}
 };

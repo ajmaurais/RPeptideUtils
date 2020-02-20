@@ -377,6 +377,51 @@ Rcpp::List fastaInfo(std::string fastaPath = "")
 							  Rcpp::Named("ids") = ids);
 }
 
+//' Transpose peptide quantifications for a single protein into amino acid level
+//' quantifications. An row will be included in the output for each time an amino acid
+//' at a given position was included in a peptide in peptide_sequences. Additional processing
+//' is required to obtain summary values for each amino acid position.
+//' 
+//' @title Transpose peptide quantifications into amino acid level quantifications.
+//' 
+//' @param peptide_sequences List of peptide sequences.
+//' @param quantification Ratio or spectral count values for peptide_sequences.
+//' @param protein_seq Parent protein sequence.
+//' @return DataFrame with columns for 'residue', 'number', and 'quant'.
+//'
+// [[Rcpp::export]]
+Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences,
+                        const Rcpp::NumericVector& quantification,
+                        const std::string& protein_seq)
+{
+    if(peptide_sequences.size() != quantification.size())
+        throw std::runtime_error("peptide_sequences and quantification must be the same length!");
+
+    std::vector<char> residues;
+    Rcpp::IntegerVector numbers;
+    Rcpp::NumericVector quantifications;
+
+    size_t n_seq = peptide_sequences.size();
+    size_t begin, end;
+    for(size_t i = 0; i < n_seq; i++)
+    {
+        if(!utils::align(std::string(peptide_sequences[i]), protein_seq, begin, end))
+            throw std::runtime_error("Peptide sequence '" + peptide_sequences[i] + "' does not exist in protein_seq!");
+
+        size_t pep_len = peptide_sequences[i].size();
+        for(size_t pep_begin = 0; pep_begin < pep_len; pep_begin++) {
+            residues.push_back(peptide_sequences[i][pep_begin]);
+            numbers.push_back(pep_begin + begin);
+            quantifications.push_back(quantification[i]);
+        }
+    }
+
+    return Rcpp::DataFrame::create(Rcpp::Named("residue") = residues,
+                                   Rcpp::Named("number") = numbers,
+                                   Rcpp::Named("quant") = quantifications);
+}
+
+
 //' The function uses charge and m/z filters to remove peptides which would not be
 //' observable by MS. The m/z for peptides in charge states minCharge to maxCharge
 //' are calculated. If the m/z for any charge state is in between minMZ and maxMZ, the

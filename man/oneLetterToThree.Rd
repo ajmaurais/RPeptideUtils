@@ -4,8 +4,13 @@
 \alias{oneLetterToThree}
 \title{Convert to 3 letter amino acid codes}
 \usage{
-oneLetterToThree(sequences, sep_in = "", sep_out = "",
-  n_term_out = "", c_term_out = "")
+oneLetterToThree(
+  sequences,
+  sep_in = "",
+  sep_out = "",
+  n_term_out = "",
+  c_term_out = ""
+)
 }
 \arguments{
 \item{sequences}{vector of sequences}

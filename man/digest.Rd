@@ -4,10 +4,20 @@
 \alias{digest}
 \title{Perform a virtual protease digest of a protein.}
 \usage{
-digest(sequences, ids, nMissedCleavages = 0L,
-  cleavagePattern = "([RK])(?=[^P])", mz_filter = TRUE,
-  residueAtoms = "", minMz = 400, maxMz = 1800, minCharge = 1L,
-  maxCharge = 5L, minLen = 6L, maxLen = 0L)
+digest(
+  sequences,
+  ids,
+  nMissedCleavages = 0L,
+  cleavagePattern = "([RK])(?=[^P])",
+  mz_filter = TRUE,
+  residueAtoms = "",
+  minMz = 400,
+  maxMz = 1800,
+  minCharge = 1L,
+  maxCharge = 5L,
+  minLen = 6L,
+  maxLen = 0L
+)
 }
 \arguments{
 \item{sequences}{StringVector containing protein sequences. Whitespace will automatically be removed.}

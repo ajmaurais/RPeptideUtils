@@ -165,6 +165,22 @@ fastaInfo <- function(fastaPath = "") {
     .Call(`_peptideUtils_fastaInfo`, fastaPath)
 }
 
+#' Transpose peptide quantifications for a single protein into amino acid level
+#' quantifications. An row will be included in the output for each time an amino acid
+#' at a given position was included in a peptide in peptide_sequences. Additional processing
+#' is required to obtain summary values for each amino acid position.
+#' 
+#' @title Transpose peptide quantifications into amino acid level quantifications.
+#' 
+#' @param peptide_sequences List of peptide sequences.
+#' @param quantification Ratio or spectral count values for peptide_sequences.
+#' @param protein_seq Parent protein sequence.
+#' @return DataFrame with columns for 'residue', 'number', and 'quant'.
+#'
+transpose_sequence <- function(peptide_sequences, quantification, protein_seq) {
+    .Call(`_peptideUtils_transpose_sequence`, peptide_sequences, quantification, protein_seq)
+}
+
 #' The function uses charge and m/z filters to remove peptides which would not be
 #' observable by MS. The m/z for peptides in charge states minCharge to maxCharge
 #' are calculated. If the m/z for any charge state is in between minMZ and maxMZ, the

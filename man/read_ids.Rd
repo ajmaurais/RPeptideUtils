@@ -4,11 +4,13 @@
 \alias{read_ids}
 \title{Read a list of IDs, and protein names from a fasta file.}
 \usage{
-
-  read_ids(fname = system.file("extdata/Human_uniprot-reviewed_20171020.fasta",
-  package = "peptideUtils", mustWork = T), id_line_regex = "^>(sp|tr)",
+read_ids(
+  fname = system.file("extdata/Human_uniprot-reviewed_20171020.fasta", package =
+    "peptideUtils", mustWork = T),
+  id_line_regex = "^>(sp|tr)",
   capture_regex = "^>[sptr]{2}\\\\|(\\\\w+)\\\\|(\\\\w+)_\\\\w+",
-  .colnames = c("id", "protein"))
+  .colnames = c("id", "protein")
+)
 }
 \arguments{
 \item{fname}{Path to fasta file to get data from.}
