@@ -391,8 +391,8 @@ Rcpp::List fastaInfo(std::string fastaPath = "")
 //'
 // [[Rcpp::export]]
 Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences,
-                        const Rcpp::NumericVector& quantification,
-                        const std::string& protein_seq)
+								   const Rcpp::NumericVector& quantification,
+								   const std::string& protein_seq)
 {
     if(peptide_sequences.size() != quantification.size())
         throw std::runtime_error("peptide_sequences and quantification must be the same length!");
@@ -418,7 +418,8 @@ Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences,
 
     return Rcpp::DataFrame::create(Rcpp::Named("residue") = residues,
                                    Rcpp::Named("number") = numbers,
-                                   Rcpp::Named("quant") = quantifications);
+                                   Rcpp::Named("quant") = quantifications,
+								   Rcpp::Named("stringsAsFactors") = false);
 }
 
 
@@ -478,7 +479,7 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 		{
 			//init residues
 			utils::Residues residues(residueAtomsPath);
-			if(!residues.initialize())
+			if(!residues.initialize(false))
 				throw std::runtime_error("Error reading required files for calcMass!");
 			
 			residues.digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp, nMissedCleavages, false, cleavagePattern,
