@@ -45,6 +45,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// indexN
+Rcpp::IntegerVector indexN(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, long n, bool noExcept);
+RcppExport SEXP _peptideUtils_indexN(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query(querySEXP);
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector >::type ref(refSEXP);
+    Rcpp::traits::input_parameter< long >::type n(nSEXP);
+    Rcpp::traits::input_parameter< bool >::type noExcept(noExceptSEXP);
+    rcpp_result_gen = Rcpp::wrap(indexN(query, ref, n, noExcept));
+    return rcpp_result_gen;
+END_RCPP
+}
 // getModifiedResidues
 Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids, const Rcpp::CharacterVector& peptideSeq, std::string fastaPath, std::string modSep);
 RcppExport SEXP _peptideUtils_getModifiedResidues(SEXP idsSEXP, SEXP peptideSeqSEXP, SEXP fastaPathSEXP, SEXP modSepSEXP) {
@@ -190,6 +204,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_peptideUtils_getSequences", (DL_FUNC) &_peptideUtils_getSequences, 2},
     {"_peptideUtils_nBefore", (DL_FUNC) &_peptideUtils_nBefore, 4},
     {"_peptideUtils_nAfter", (DL_FUNC) &_peptideUtils_nAfter, 4},
+    {"_peptideUtils_indexN", (DL_FUNC) &_peptideUtils_indexN, 4},
     {"_peptideUtils_getModifiedResidues", (DL_FUNC) &_peptideUtils_getModifiedResidues, 4},
     {"_peptideUtils_combineMods", (DL_FUNC) &_peptideUtils_combineMods, 2},
     {"_peptideUtils_calcMass", (DL_FUNC) &_peptideUtils_calcMass, 3},

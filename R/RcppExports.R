@@ -48,6 +48,20 @@ nAfter <- function(query, ref, n = 1L, noExcept = FALSE) {
     .Call(`_peptideUtils_nAfter`, query, ref, n, noExcept)
 }
 
+#' Get the index of residue n of query in ref. If n is -1, the index of the last residue in query is returned.
+#' 
+#' @title get the index of nth residues of query in ref.
+#' @param query String to search for.
+#' @param ref String to search in.
+#' @param n Residue number in query.
+#' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
+#' 
+#' @return n residues after query.
+#'
+indexN <- function(query, ref, n = 1L, noExcept = FALSE) {
+    .Call(`_peptideUtils_indexN`, query, ref, n, noExcept)
+}
+
 #' Get locations of modified residues in parent protein
 #'
 #' @title Get locations of modified residues in parent protein

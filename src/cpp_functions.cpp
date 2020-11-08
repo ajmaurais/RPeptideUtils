@@ -112,6 +112,33 @@ Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::Cha
 	return ret;
 }
 
+//' Get the index of residue n of query in ref. If n is -1, the index of the last residue in query is returned.
+//' 
+//' @title get the index of nth residues of query in ref.
+//' @param query String to search for.
+//' @param ref String to search in.
+//' @param n Residue number in query.
+//' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
+//' 
+//' @return n residues after query.
+//'
+// [[Rcpp::export]]
+Rcpp::IntegerVector indexN(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
+	long n = 1, bool noExcept = false)
+{
+	Rcpp::IntegerVector ret;
+
+	size_t len = query.size();
+	if(len != ref.size())
+		throw std::runtime_error("query and ref must be the same length!");
+
+	for(size_t i = 0; i < len; i++){
+		ret.push_back(utils::indexN(std::string(query[i]), std::string(ref[i]), n == -1 ? std::string::npos : n, noExcept));
+	}
+
+	return ret;
+}
+
 //remove residues before and after cleavage
 std::string makeSequenceFromFullSequence(std::string fs)
 {
