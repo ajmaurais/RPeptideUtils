@@ -74,12 +74,15 @@ Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::Ch
 {
 	Rcpp::CharacterVector ret;
 
-	size_t len = query.size();
-	if(len != ref.size())
-		throw std::runtime_error("query and ref must be the same length!");
+	size_t len = ref.size();
+	if(len != 1){
+		if(len != query.size())
+			throw std::runtime_error("query and ref must be the same length!");
+	}
 
-	for(size_t i = 0; i < len; i++){
-		ret.push_back(utils::nBefore(std::string(query[i]), std::string(ref[i]), n, noExcept));
+	for(size_t i = 0; i < query.size(); i++){
+		std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
+		ret.push_back(utils::nBefore(std::string(query[i]), ref_temp, n, noExcept));
 	}
 
 	return ret;
@@ -101,12 +104,15 @@ Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::Cha
 {
 	Rcpp::CharacterVector ret;
 
-	size_t len = query.size();
-	if(len != ref.size())
-		throw std::runtime_error("query and ref must be the same length!");
+	size_t len = ref.size();
+	if(len != 1){
+		if(len != query.size())
+			throw std::runtime_error("query and ref must be the same length!");
+	}
 
-	for(size_t i = 0; i < len; i++){
-		ret.push_back(utils::nAfter(std::string(query[i]), std::string(ref[i]), n, noExcept));
+	for(size_t i = 0; i < query.size(); i++){
+		std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
+		ret.push_back(utils::nAfter(std::string(query[i]), ref_temp, n, noExcept));
 	}
 
 	return ret;
@@ -128,12 +134,15 @@ Rcpp::IntegerVector indexN(const Rcpp::CharacterVector& query, const Rcpp::Chara
 {
 	Rcpp::IntegerVector ret;
 
-	size_t len = query.size();
-	if(len != ref.size())
-		throw std::runtime_error("query and ref must be the same length!");
+	size_t len = ref.size();
+	if(len != 1){
+		if(len != query.size())
+			throw std::runtime_error("query and ref must be the same length!");
+	}
 
-	for(size_t i = 0; i < len; i++){
-		ret.push_back(utils::indexN(std::string(query[i]), std::string(ref[i]), n == -1 ? std::string::npos : n, noExcept));
+	for(size_t i = 0; i < query.size(); i++){
+		std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
+		ret.push_back(utils::indexN(std::string(query[i]), ref_temp, n == -1 ? std::string::npos : n, noExcept));
 	}
 
 	return ret;
