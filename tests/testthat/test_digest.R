@@ -107,7 +107,7 @@ two_missed <- list('Q8N6Q8' = c("ERTQEK", "GNQNQR", "IGENQK", "LFDPVK", "LKKHWK"
                                 "CGNGLGHEFLNDGPKPGQSRFCIFSSSLKFVPK", "MSFCSFFGGEVFQNHFEPGVYVCAKCGYELFSSR",
                                 "VSCGKCGNGLGHEFLNDGPKPGQSRFCIFSSSLK", "MSFCSFFGGEVFQNHFEPGVYVCAKCGYELFSSRSK"))
 
-residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T)
+residueAtoms = system.file('defaultResidueAtoms.txt', package = 'RPeptideUtils', mustWork = T)
 
 test_that('mz filter works',{
   expect_equal(digest(sequences, ids, nMissedCleavages = 0, maxCharge = 3,

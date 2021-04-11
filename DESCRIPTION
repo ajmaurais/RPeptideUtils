@@ -1,4 +1,4 @@
-Package: peptideUtils
+Package: RPeptideUtils
 Type: Package
 Title: Wraps useful c++ functions for dealing with peptide data in R.
 Version: 1.0.1

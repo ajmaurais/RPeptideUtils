@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{combineMods}
 \alias{combineMods}
-\title{Combined mods from multiple peptides into a single string}
+\title{Combine mods from multiple peptides into a single string}
 \usage{
 combineMods(mods, sep = "|")
 }
@@ -15,7 +15,7 @@ combineMods(mods, sep = "|")
 Modifications combined into a single string
 }
 \description{
-Combined concated mods from multiple peptides into a single string.
+Combine concated mods from multiple peptides into a single string.
 }
 \examples{
 combineMods(c('C157', 'C157|C125', 'C50', 'C125'))

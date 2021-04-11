@@ -13,11 +13,11 @@
 #' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
 #' 
 #' #A fasta file can also be manually spedified.
-#' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
+#' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
 #' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 #' 
 getSequences <- function(ids, fastaPath = "") {
-    .Call(`_peptideUtils_getSequences`, ids, fastaPath)
+    .Call(`_RPeptideUtils_getSequences`, ids, fastaPath)
 }
 
 #' Get n residues before query in ref. If n overruns ref, the maximum number of characters will be returned.
@@ -31,7 +31,7 @@ getSequences <- function(ids, fastaPath = "") {
 #' @return n residues before query.
 #'
 nBefore <- function(query, ref, n = 1L, noExcept = FALSE) {
-    .Call(`_peptideUtils_nBefore`, query, ref, n, noExcept)
+    .Call(`_RPeptideUtils_nBefore`, query, ref, n, noExcept)
 }
 
 #' Get n residues after query in ref. If n overruns ref, the maximum number of characters will be returned.
@@ -45,7 +45,7 @@ nBefore <- function(query, ref, n = 1L, noExcept = FALSE) {
 #' @return n residues after query.
 #'
 nAfter <- function(query, ref, n = 1L, noExcept = FALSE) {
-    .Call(`_peptideUtils_nAfter`, query, ref, n, noExcept)
+    .Call(`_RPeptideUtils_nAfter`, query, ref, n, noExcept)
 }
 
 #' Get the index of residue n of query in ref. If n is -1, the index of the last residue in query is returned.
@@ -59,7 +59,7 @@ nAfter <- function(query, ref, n = 1L, noExcept = FALSE) {
 #' @return n residues after query.
 #'
 indexN <- function(query, ref, n = 1L, noExcept = FALSE) {
-    .Call(`_peptideUtils_indexN`, query, ref, n, noExcept)
+    .Call(`_RPeptideUtils_indexN`, query, ref, n, noExcept)
 }
 
 #' Get locations of modified residues in parent protein
@@ -75,12 +75,12 @@ indexN <- function(query, ref, n = 1L, noExcept = FALSE) {
 #' getModifiedResidues(c("Q00839", "Q9HCS7", "Q7L014"), c("APQC*LGK", "FADMEC*K", "GAEIIVC*TPGR"))
 #' 
 getModifiedResidues <- function(ids, peptideSeq, fastaPath = "", modSep = "|") {
-    .Call(`_peptideUtils_getModifiedResidues`, ids, peptideSeq, fastaPath, modSep)
+    .Call(`_RPeptideUtils_getModifiedResidues`, ids, peptideSeq, fastaPath, modSep)
 }
 
-#' Combined concated mods from multiple peptides into a single string.
+#' Combine concated mods from multiple peptides into a single string.
 #' 
-#' @title Combined mods from multiple peptides into a single string
+#' @title Combine mods from multiple peptides into a single string
 #' @param mods Modifications to combine
 #' @param sep delimiter separating modifications
 #' @return Modifications combined into a single string
@@ -89,7 +89,7 @@ getModifiedResidues <- function(ids, peptideSeq, fastaPath = "", modSep = "|") {
 #' combineMods(c('C157', 'C157|C125', 'C50', 'C125'))
 #' 
 combineMods <- function(mods, sep = '|') {
-    .Call(`_peptideUtils_combineMods`, mods, sep)
+    .Call(`_RPeptideUtils_combineMods`, mods, sep)
 }
 
 #' Calculate peptide monoisotopic or average masses.
@@ -104,7 +104,7 @@ combineMods <- function(mods, sep = '|') {
 #' calcMass(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"))
 #'
 calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "") {
-    .Call(`_peptideUtils_calcMass`, sequences, monoMass, residueAtoms)
+    .Call(`_RPeptideUtils_calcMass`, sequences, monoMass, residueAtoms)
 }
 
 #' Calculate peptide molecular formulas
@@ -119,7 +119,7 @@ calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "") {
 #' calcFormula(c("ACLLPETVNMEEYPYDAEY", "ALCAEFK"), subscripts = TRUE)
 #'
 calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
-    .Call(`_peptideUtils_calcFormula`, sequences, subscripts, residueAtoms)
+    .Call(`_RPeptideUtils_calcFormula`, sequences, subscripts, residueAtoms)
 }
 
 #' Convert from 1 letter amino acid codes to 3
@@ -136,7 +136,7 @@ calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
 #' oneLetterToThree(c("AC*LLPETVNMEEYPYDAEY", "ALCAEFK", "AQUPIVER", "C*TGGEVGATSALAPK"))
 #' 
 oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
-    .Call(`_peptideUtils_oneLetterToThree`, sequences, sep_in, sep_out, n_term_out, c_term_out)
+    .Call(`_RPeptideUtils_oneLetterToThree`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
 
 #' Convert from 3 letter amino acid codes to 1
@@ -153,7 +153,7 @@ oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = 
 #' threeLetterToOne(c("Ala-Cys*-Leu-Leu-Pro", "Ala-Leu-Cys-Ala", "Ala-Gln-Sec-Ile"), sep_in = "-")
 #' 
 threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
-    .Call(`_peptideUtils_threeLetterToOne`, sequences, sep_in, sep_out, n_term_out, c_term_out)
+    .Call(`_RPeptideUtils_threeLetterToOne`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
 
 #' Read all sequences in fasta file. Reverse matches are automatically skipped.
@@ -165,7 +165,7 @@ threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = 
 #' @return DataFrame with columns for ID and sequence.
 #'
 readFasta <- function(fastaPath = "", n_entries = 0L) {
-    .Call(`_peptideUtils_readFasta`, fastaPath, n_entries)
+    .Call(`_RPeptideUtils_readFasta`, fastaPath, n_entries)
 }
 
 #' Get metadata about a fasta file.
@@ -176,7 +176,7 @@ readFasta <- function(fastaPath = "", n_entries = 0L) {
 #' @return List with slots for sequence count and vector of entry IDs contained in file.
 #' 
 fastaInfo <- function(fastaPath = "") {
-    .Call(`_peptideUtils_fastaInfo`, fastaPath)
+    .Call(`_RPeptideUtils_fastaInfo`, fastaPath)
 }
 
 #' Transpose peptide quantifications for a single protein into amino acid level
@@ -192,7 +192,7 @@ fastaInfo <- function(fastaPath = "") {
 #' @return DataFrame with columns for 'residue', 'number', and 'quant'.
 #'
 transpose_sequence <- function(peptide_sequences, quantification, protein_seq) {
-    .Call(`_peptideUtils_transpose_sequence`, peptide_sequences, quantification, protein_seq)
+    .Call(`_RPeptideUtils_transpose_sequence`, peptide_sequences, quantification, protein_seq)
 }
 
 #' The function uses charge and m/z filters to remove peptides which would not be
@@ -221,6 +221,20 @@ transpose_sequence <- function(peptide_sequences, quantification, protein_seq) {
 #' digest(c("KLGAARKLGAGLAKVIGAGIGIGK", "KLGAARKLGAGLAKPVIGAGIGIGK"), c('a', 'b'))
 #'
 digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([RK])(?=[^P])", mz_filter = TRUE, residueAtoms = "", minMz = 400, maxMz = 1800, minCharge = 1L, maxCharge = 5L, minLen = 6L, maxLen = 0L) {
-    .Call(`_peptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
+    .Call(`_RPeptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
+}
+
+#' Space a list of sequence indecies into y levels for a sequence coverage plot.
+#' 
+#' @title Space a list of sequence indecies for a coverage plot.
+#' @param begin_i IngegerVector of begining indices.
+#' @param end_i IngegerVector of ending indices.
+#' @return IngegerVector of y levels for each sequence.
+#' 
+#' @examples
+#' spaceCoveragePlot(c(1, 5, 30, 50), c(20, 20, 48, 60))
+#'
+spaceCoveragePlot <- function(begin_i, end_i) {
+    .Call(`_RPeptideUtils_spaceCoveragePlot`, begin_i, end_i)
 }
 

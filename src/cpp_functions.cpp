@@ -8,11 +8,11 @@
 
 #include <fastaFile.hpp>
 #include <molecularFormula.hpp>
-#include <peptideUtils.hpp>
+#include <sequenceUtils.hpp>
 #include <utils.hpp>
 
 //!Return data files included in an R package
-std::string _getPackageData(std::string filename, std::string packageName = "peptideUtils")
+std::string _getPackageData(std::string filename, std::string packageName = "RPeptideUtils")
 {
 	Rcpp::Environment base("package:base");
 	Rcpp::Function sys_file = base["system.file"];
@@ -37,7 +37,7 @@ std::string _getPackageData(std::string filename, std::string packageName = "pep
 //' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
 //' 
 //' #A fasta file can also be manually spedified.
-//' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
+//' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
 //' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 //' 
 // [[Rcpp::export]]
@@ -196,9 +196,9 @@ Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
 	return ret;
 }
 
-//' Combined concated mods from multiple peptides into a single string.
+//' Combine concated mods from multiple peptides into a single string.
 //' 
-//' @title Combined mods from multiple peptides into a single string
+//' @title Combine mods from multiple peptides into a single string
 //' @param mods Modifications to combine
 //' @param sep delimiter separating modifications
 //' @return Modifications combined into a single string

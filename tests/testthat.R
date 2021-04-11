@@ -1,4 +1,4 @@
 library(testthat)
-library(peptideUtils)
+library(RPeptideUtils)
 
-test_check("peptideUtils")
+test_check("RPeptideUtils")

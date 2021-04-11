@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // getSequences
 Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string fastaPath);
-RcppExport SEXP _peptideUtils_getSequences(SEXP idsSEXP, SEXP fastaPathSEXP) {
+RcppExport SEXP _RPeptideUtils_getSequences(SEXP idsSEXP, SEXP fastaPathSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ END_RCPP
 }
 // nBefore
 Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, unsigned n, bool noExcept);
-RcppExport SEXP _peptideUtils_nBefore(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
+RcppExport SEXP _RPeptideUtils_nBefore(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -33,7 +33,7 @@ END_RCPP
 }
 // nAfter
 Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, unsigned n, bool noExcept);
-RcppExport SEXP _peptideUtils_nAfter(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
+RcppExport SEXP _RPeptideUtils_nAfter(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -47,7 +47,7 @@ END_RCPP
 }
 // indexN
 Rcpp::IntegerVector indexN(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, long n, bool noExcept);
-RcppExport SEXP _peptideUtils_indexN(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
+RcppExport SEXP _RPeptideUtils_indexN(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -61,7 +61,7 @@ END_RCPP
 }
 // getModifiedResidues
 Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids, const Rcpp::CharacterVector& peptideSeq, std::string fastaPath, std::string modSep);
-RcppExport SEXP _peptideUtils_getModifiedResidues(SEXP idsSEXP, SEXP peptideSeqSEXP, SEXP fastaPathSEXP, SEXP modSepSEXP) {
+RcppExport SEXP _RPeptideUtils_getModifiedResidues(SEXP idsSEXP, SEXP peptideSeqSEXP, SEXP fastaPathSEXP, SEXP modSepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -75,7 +75,7 @@ END_RCPP
 }
 // combineMods
 std::string combineMods(const Rcpp::CharacterVector& mods, char sep);
-RcppExport SEXP _peptideUtils_combineMods(SEXP modsSEXP, SEXP sepSEXP) {
+RcppExport SEXP _RPeptideUtils_combineMods(SEXP modsSEXP, SEXP sepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -87,7 +87,7 @@ END_RCPP
 }
 // calcMass
 Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences, bool monoMass, std::string residueAtoms);
-RcppExport SEXP _peptideUtils_calcMass(SEXP sequencesSEXP, SEXP monoMassSEXP, SEXP residueAtomsSEXP) {
+RcppExport SEXP _RPeptideUtils_calcMass(SEXP sequencesSEXP, SEXP monoMassSEXP, SEXP residueAtomsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -100,7 +100,7 @@ END_RCPP
 }
 // calcFormula
 Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences, bool subscripts, std::string residueAtoms);
-RcppExport SEXP _peptideUtils_calcFormula(SEXP sequencesSEXP, SEXP subscriptsSEXP, SEXP residueAtomsSEXP) {
+RcppExport SEXP _RPeptideUtils_calcFormula(SEXP sequencesSEXP, SEXP subscriptsSEXP, SEXP residueAtomsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -113,7 +113,7 @@ END_RCPP
 }
 // oneLetterToThree
 Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences, std::string sep_in, std::string sep_out, std::string n_term_out, std::string c_term_out);
-RcppExport SEXP _peptideUtils_oneLetterToThree(SEXP sequencesSEXP, SEXP sep_inSEXP, SEXP sep_outSEXP, SEXP n_term_outSEXP, SEXP c_term_outSEXP) {
+RcppExport SEXP _RPeptideUtils_oneLetterToThree(SEXP sequencesSEXP, SEXP sep_inSEXP, SEXP sep_outSEXP, SEXP n_term_outSEXP, SEXP c_term_outSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -128,7 +128,7 @@ END_RCPP
 }
 // threeLetterToOne
 Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences, std::string sep_in, std::string sep_out, std::string n_term_out, std::string c_term_out);
-RcppExport SEXP _peptideUtils_threeLetterToOne(SEXP sequencesSEXP, SEXP sep_inSEXP, SEXP sep_outSEXP, SEXP n_term_outSEXP, SEXP c_term_outSEXP) {
+RcppExport SEXP _RPeptideUtils_threeLetterToOne(SEXP sequencesSEXP, SEXP sep_inSEXP, SEXP sep_outSEXP, SEXP n_term_outSEXP, SEXP c_term_outSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -143,7 +143,7 @@ END_RCPP
 }
 // readFasta
 Rcpp::DataFrame readFasta(std::string fastaPath, long n_entries);
-RcppExport SEXP _peptideUtils_readFasta(SEXP fastaPathSEXP, SEXP n_entriesSEXP) {
+RcppExport SEXP _RPeptideUtils_readFasta(SEXP fastaPathSEXP, SEXP n_entriesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -155,7 +155,7 @@ END_RCPP
 }
 // fastaInfo
 Rcpp::List fastaInfo(std::string fastaPath);
-RcppExport SEXP _peptideUtils_fastaInfo(SEXP fastaPathSEXP) {
+RcppExport SEXP _RPeptideUtils_fastaInfo(SEXP fastaPathSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -166,7 +166,7 @@ END_RCPP
 }
 // transpose_sequence
 Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences, const Rcpp::NumericVector& quantification, const std::string& protein_seq);
-RcppExport SEXP _peptideUtils_transpose_sequence(SEXP peptide_sequencesSEXP, SEXP quantificationSEXP, SEXP protein_seqSEXP) {
+RcppExport SEXP _RPeptideUtils_transpose_sequence(SEXP peptide_sequencesSEXP, SEXP quantificationSEXP, SEXP protein_seqSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -179,7 +179,7 @@ END_RCPP
 }
 // digest
 Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids, unsigned nMissedCleavages, std::string cleavagePattern, bool mz_filter, std::string residueAtoms, double minMz, double maxMz, int minCharge, int maxCharge, size_t minLen, size_t maxLen);
-RcppExport SEXP _peptideUtils_digest(SEXP sequencesSEXP, SEXP idsSEXP, SEXP nMissedCleavagesSEXP, SEXP cleavagePatternSEXP, SEXP mz_filterSEXP, SEXP residueAtomsSEXP, SEXP minMzSEXP, SEXP maxMzSEXP, SEXP minChargeSEXP, SEXP maxChargeSEXP, SEXP minLenSEXP, SEXP maxLenSEXP) {
+RcppExport SEXP _RPeptideUtils_digest(SEXP sequencesSEXP, SEXP idsSEXP, SEXP nMissedCleavagesSEXP, SEXP cleavagePatternSEXP, SEXP mz_filterSEXP, SEXP residueAtomsSEXP, SEXP minMzSEXP, SEXP maxMzSEXP, SEXP minChargeSEXP, SEXP maxChargeSEXP, SEXP minLenSEXP, SEXP maxLenSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -199,26 +199,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// spaceCoveragePlot
+Rcpp::IntegerVector spaceCoveragePlot(const Rcpp::IntegerVector& begin_i, const Rcpp::IntegerVector& end_i);
+RcppExport SEXP _RPeptideUtils_spaceCoveragePlot(SEXP begin_iSEXP, SEXP end_iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type begin_i(begin_iSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type end_i(end_iSEXP);
+    rcpp_result_gen = Rcpp::wrap(spaceCoveragePlot(begin_i, end_i));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_peptideUtils_getSequences", (DL_FUNC) &_peptideUtils_getSequences, 2},
-    {"_peptideUtils_nBefore", (DL_FUNC) &_peptideUtils_nBefore, 4},
-    {"_peptideUtils_nAfter", (DL_FUNC) &_peptideUtils_nAfter, 4},
-    {"_peptideUtils_indexN", (DL_FUNC) &_peptideUtils_indexN, 4},
-    {"_peptideUtils_getModifiedResidues", (DL_FUNC) &_peptideUtils_getModifiedResidues, 4},
-    {"_peptideUtils_combineMods", (DL_FUNC) &_peptideUtils_combineMods, 2},
-    {"_peptideUtils_calcMass", (DL_FUNC) &_peptideUtils_calcMass, 3},
-    {"_peptideUtils_calcFormula", (DL_FUNC) &_peptideUtils_calcFormula, 3},
-    {"_peptideUtils_oneLetterToThree", (DL_FUNC) &_peptideUtils_oneLetterToThree, 5},
-    {"_peptideUtils_threeLetterToOne", (DL_FUNC) &_peptideUtils_threeLetterToOne, 5},
-    {"_peptideUtils_readFasta", (DL_FUNC) &_peptideUtils_readFasta, 2},
-    {"_peptideUtils_fastaInfo", (DL_FUNC) &_peptideUtils_fastaInfo, 1},
-    {"_peptideUtils_transpose_sequence", (DL_FUNC) &_peptideUtils_transpose_sequence, 3},
-    {"_peptideUtils_digest", (DL_FUNC) &_peptideUtils_digest, 12},
+    {"_RPeptideUtils_getSequences", (DL_FUNC) &_RPeptideUtils_getSequences, 2},
+    {"_RPeptideUtils_nBefore", (DL_FUNC) &_RPeptideUtils_nBefore, 4},
+    {"_RPeptideUtils_nAfter", (DL_FUNC) &_RPeptideUtils_nAfter, 4},
+    {"_RPeptideUtils_indexN", (DL_FUNC) &_RPeptideUtils_indexN, 4},
+    {"_RPeptideUtils_getModifiedResidues", (DL_FUNC) &_RPeptideUtils_getModifiedResidues, 4},
+    {"_RPeptideUtils_combineMods", (DL_FUNC) &_RPeptideUtils_combineMods, 2},
+    {"_RPeptideUtils_calcMass", (DL_FUNC) &_RPeptideUtils_calcMass, 3},
+    {"_RPeptideUtils_calcFormula", (DL_FUNC) &_RPeptideUtils_calcFormula, 3},
+    {"_RPeptideUtils_oneLetterToThree", (DL_FUNC) &_RPeptideUtils_oneLetterToThree, 5},
+    {"_RPeptideUtils_threeLetterToOne", (DL_FUNC) &_RPeptideUtils_threeLetterToOne, 5},
+    {"_RPeptideUtils_readFasta", (DL_FUNC) &_RPeptideUtils_readFasta, 2},
+    {"_RPeptideUtils_fastaInfo", (DL_FUNC) &_RPeptideUtils_fastaInfo, 1},
+    {"_RPeptideUtils_transpose_sequence", (DL_FUNC) &_RPeptideUtils_transpose_sequence, 3},
+    {"_RPeptideUtils_digest", (DL_FUNC) &_RPeptideUtils_digest, 12},
+    {"_RPeptideUtils_spaceCoveragePlot", (DL_FUNC) &_RPeptideUtils_spaceCoveragePlot, 2},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_peptideUtils(DllInfo *dll) {
+RcppExport void R_init_RPeptideUtils(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

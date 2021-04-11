@@ -1,6 +1,6 @@
 
-PKG_CPPFLAGS += -I../utils/include
+PKG_CPPFLAGS += -I../peptideUtils/include
 PKG_CXXFLAGS = -fPIC -c -g -Wall -std=c++11
-PKG_LIBS += ../utils/lib/libutils.a
+PKG_LIBS += ../peptideUtils/lib/libpeptideUtils.a
 
 

@@ -15,14 +15,14 @@ standards <- data.frame(sequence = c("ACLLPETVNMEEYPYDAEY", "ALCAEFK", "AQCPIVER
 test_that("Correct masses are calculated",{
   
   #check exact mass against standards
-  expect_equal(peptideUtils::calcMass(standards$sequence,
-                                      residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T)),
+  expect_equal(RPeptideUtils::calcMass(standards$sequence,
+                                      residueAtoms = system.file('defaultResidueAtoms.txt', package = 'RPeptideUtils', mustWork = T)),
                standards$exact_mass, 
                tolerance = 1e-3)
   
   #check avg mass against standards
-  expect_equal(peptideUtils::calcMass(standards$sequence,
-                                      residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T),
+  expect_equal(RPeptideUtils::calcMass(standards$sequence,
+                                      residueAtoms = system.file('defaultResidueAtoms.txt', package = 'RPeptideUtils', mustWork = T),
                                       monoMass = F),
                standards$molecular_weight, 
                tolerance = 1e-3)
@@ -33,8 +33,7 @@ context('calcFormula')
 test_that("Correct molecular formulas are calculated",{
   
   #check exact mass against standards
-  expect_equal(peptideUtils::calcFormula(standards$sequence,
-                                         residueAtoms = system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T)),
+  expect_equal(RPeptideUtils::calcFormula(standards$sequence, residueAtoms = system.file('defaultResidueAtoms.txt', package = 'RPeptideUtils', mustWork = T)),
                standards$formula)
 })
 

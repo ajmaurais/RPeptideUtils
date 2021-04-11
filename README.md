@@ -1,16 +1,16 @@
-# peptideUtils
+# RPeptideUtils
 Wraps useful c++ functions for dealing with peptide data in R.
 
 ## Installation
-`peptideUtils` depends on the [utils](https://github.com/ajmaurais/utils) c++ library which is included as a submodule in this repository. To clone this repository and the `utils` submodule, run:
+`RPeptideUtils` depends on the [peptideUtils](https://github.com/ajmaurais/peptideUtils) c++ library which is included as a submodule in this repository. To clone this repository and the `peptideUtils` submodule, run:
 ```bash
-git clone --recurse-submodules https://github.com/ajmaurais/peptideUtils
+git clone --recurse-submodules https://github.com/ajmaurais/RPeptideUtils
 ```
-Next, build the utils library:
+Next, build the peptideUtils library:
 ```bash
-cd peptideUtils/utils && make
+cd RPeptideUtils/peptideUtils && make
 ```
-Finally, build and install the `peptideUtils` package.
+Finally, build and install the `RPeptideUtils` package.
 ```bash
 cd ..
 Rscript -e "install.packages('.', repo = NULL, type = 'source')"
