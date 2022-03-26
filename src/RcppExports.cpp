@@ -5,6 +5,22 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
+// getFragmemntIonIndices
+Rcpp::IntegerMatrix getFragmemntIonIndices(std::string seq);
+RcppExport SEXP _RPeptideUtils_getFragmemntIonIndices(SEXP seqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type seq(seqSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFragmemntIonIndices(seq));
+    return rcpp_result_gen;
+END_RCPP
+}
 // getSequences
 Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string fastaPath);
 RcppExport SEXP _RPeptideUtils_getSequences(SEXP idsSEXP, SEXP fastaPathSEXP) {
@@ -18,28 +34,28 @@ BEGIN_RCPP
 END_RCPP
 }
 // nBefore
-Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, unsigned n, bool noExcept);
+Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, const Rcpp::IntegerVector& n, bool noExcept);
 RcppExport SEXP _RPeptideUtils_nBefore(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query(querySEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector >::type ref(refSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type noExcept(noExceptSEXP);
     rcpp_result_gen = Rcpp::wrap(nBefore(query, ref, n, noExcept));
     return rcpp_result_gen;
 END_RCPP
 }
 // nAfter
-Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, unsigned n, bool noExcept);
+Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, const Rcpp::IntegerVector& n, bool noExcept);
 RcppExport SEXP _RPeptideUtils_nAfter(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query(querySEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector >::type ref(refSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type noExcept(noExceptSEXP);
     rcpp_result_gen = Rcpp::wrap(nAfter(query, ref, n, noExcept));
     return rcpp_result_gen;
@@ -213,6 +229,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_RPeptideUtils_getFragmemntIonIndices", (DL_FUNC) &_RPeptideUtils_getFragmemntIonIndices, 1},
     {"_RPeptideUtils_getSequences", (DL_FUNC) &_RPeptideUtils_getSequences, 2},
     {"_RPeptideUtils_nBefore", (DL_FUNC) &_RPeptideUtils_nBefore, 4},
     {"_RPeptideUtils_nAfter", (DL_FUNC) &_RPeptideUtils_nAfter, 4},

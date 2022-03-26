@@ -4,7 +4,7 @@
 \alias{nAfter}
 \title{get n residues after query.}
 \usage{
-nAfter(query, ref, n = 1L, noExcept = FALSE)
+nAfter(query, ref, n, noExcept = FALSE)
 }
 \arguments{
 \item{query}{String to search for.}

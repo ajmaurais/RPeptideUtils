@@ -4,7 +4,7 @@
 \alias{nBefore}
 \title{get n residues before query.}
 \usage{
-nBefore(query, ref, n = 1L, noExcept = FALSE)
+nBefore(query, ref, n, noExcept = FALSE)
 }
 \arguments{
 \item{query}{String to search for.}

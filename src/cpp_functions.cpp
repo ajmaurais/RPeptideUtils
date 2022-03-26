@@ -14,15 +14,40 @@
 //!Return data files included in an R package
 std::string _getPackageData(std::string filename, std::string packageName = "RPeptideUtils")
 {
-	Rcpp::Environment base("package:base");
-	Rcpp::Function sys_file = base["system.file"];
-	Rcpp::StringVector file_path_sv = sys_file(
-		filename,
-		Rcpp::_["package"] = packageName,
-		Rcpp::_["mustWork"] = true
-	);
-	std::string file_path = Rcpp::as<std::string>(file_path_sv);
-	return file_path;
+    Rcpp::Environment base("package:base");
+    Rcpp::Function sys_file = base["system.file"];
+    Rcpp::StringVector file_path_sv = sys_file(
+        filename,
+        Rcpp::_["package"] = packageName,
+        Rcpp::_["mustWork"] = true
+    );
+    std::string file_path = Rcpp::as<std::string>(file_path_sv);
+    return file_path;
+}
+
+//' Get indices of fragment ions for peptide sequence.
+//' 
+//' @title Get fragment ion sequence indices.
+//' @param seq Peptide sequence as a string.
+//' @return IntegerMatrix where each row is a fragment ion. The first column is the startig index of the fragment ion in the peptide sequence and the second column is the fragment length.
+// [[Rcpp::export]]
+Rcpp::IntegerMatrix getFragmemntIonIndices(std::string seq)
+{
+    std::map<std::string, utils::SizePair> ions;
+    utils::seqToIons(seq, ions);
+    Rcpp::IntegerMatrix ret(ions.size(), 2);
+    Rcpp::CharacterVector keys;
+    Rcpp::IntegerVector start, length;
+    for(auto ion: ions){
+        keys.push_back(ion.first.c_str());
+        start.push_back(ion.second.first);
+        length.push_back(ion.second.second);
+    }
+    rownames(ret) = keys;
+    colnames(ret) = Rcpp::CharacterVector::create("start", "length");
+    ret(Rcpp::_, 0) = start;
+    ret(Rcpp::_, 1) = length;
+    return ret;
 }
 
 //' Get protein sequences for a vector of uniprot IDs
@@ -43,19 +68,19 @@ std::string _getPackageData(std::string filename, std::string packageName = "RPe
 // [[Rcpp::export]]
 Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string fastaPath = "")
 {
-	std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
-	
-	Rcpp::CharacterVector ret;
-	
-	utils::FastaFile fasta(true, utils::absPath(_fastaPath));
-	if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
-	
-	size_t len = ids.size();
-	for(size_t i = 0; i < len; i++){
-		ret.push_back(fasta.getSequence(std::string(ids[i])));
-	}
-	
-	return ret;
+    std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+    
+    Rcpp::CharacterVector ret;
+    
+    utils::FastaFile fasta(true, utils::absPath(_fastaPath));
+    if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+    
+    size_t len = ids.size();
+    for(size_t i = 0; i < len; i++){
+        ret.push_back(fasta.getSequence(std::string(ids[i])));
+    }
+    
+    return ret;
 }
 
 //' Get n residues before query in ref. If n overruns ref, the maximum number of characters will be returned.
@@ -70,22 +95,26 @@ Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string
 //'
 // [[Rcpp::export]]
 Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
-	unsigned n = 1, bool noExcept = false)
+                              const Rcpp::IntegerVector& n, bool noExcept = false)
 {
-	Rcpp::CharacterVector ret;
+    Rcpp::CharacterVector ret;
 
-	size_t len = ref.size();
-	if(len != 1){
-		if(len != query.size())
-			throw std::runtime_error("query and ref must be the same length!");
-	}
+    size_t len = ref.size();
+    if(len != 1){
+        if(len != query.size())
+            throw std::runtime_error("query and ref must be the same length!");
+    }
+    if(n.size() != 1){
+        if(len != n.size())
+            throw std::runtime_error("n and ref must be the same length!");
+    }
+for(size_t i = 0; i < query.size(); i++){
+        std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
+        int n_temp = len == 1 ? n[0] : n[i];
+        ret.push_back(utils::nBefore(std::string(query[i]), ref_temp, n_temp, noExcept));
+    }
 
-	for(size_t i = 0; i < query.size(); i++){
-		std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
-		ret.push_back(utils::nBefore(std::string(query[i]), ref_temp, n, noExcept));
-	}
-
-	return ret;
+    return ret;
 }
 
 //' Get n residues after query in ref. If n overruns ref, the maximum number of characters will be returned.
@@ -100,22 +129,27 @@ Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::Ch
 //'
 // [[Rcpp::export]]
 Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
-	unsigned n = 1, bool noExcept = false)
+                             const Rcpp::IntegerVector& n, bool noExcept = false)
 {
-	Rcpp::CharacterVector ret;
+    Rcpp::CharacterVector ret;
 
-	size_t len = ref.size();
-	if(len != 1){
-		if(len != query.size())
-			throw std::runtime_error("query and ref must be the same length!");
-	}
+    size_t len = ref.size();
+    if(len != 1){
+        if(len != query.size())
+            throw std::runtime_error("query and ref must be the same length!");
+    }
+    if(n.size() != 1){
+        if(len != n.size())
+            throw std::runtime_error("n and ref must be the same length!");
+    }
 
-	for(size_t i = 0; i < query.size(); i++){
-		std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
-		ret.push_back(utils::nAfter(std::string(query[i]), ref_temp, n, noExcept));
-	}
+    for(size_t i = 0; i < query.size(); i++){
+        std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
+        int n_temp = len == 1 ? n[0] : n[i];
+        ret.push_back(utils::nAfter(std::string(query[i]), ref_temp, n_temp, noExcept));
+    }
 
-	return ret;
+    return ret;
 }
 
 //' Get the index of residue n of query in ref. If n is -1, the index of the last residue in query is returned.
@@ -130,30 +164,30 @@ Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::Cha
 //'
 // [[Rcpp::export]]
 Rcpp::IntegerVector indexN(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
-	long n = 1, bool noExcept = false)
+    long n = 1, bool noExcept = false)
 {
-	Rcpp::IntegerVector ret;
+    Rcpp::IntegerVector ret;
 
-	size_t len = ref.size();
-	if(len != 1){
-		if(len != query.size())
-			throw std::runtime_error("query and ref must be the same length!");
-	}
+    size_t len = ref.size();
+    if(len != 1){
+        if(len != query.size())
+            throw std::runtime_error("query and ref must be the same length!");
+    }
 
-	for(size_t i = 0; i < query.size(); i++){
-		std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
-		ret.push_back(utils::indexN(std::string(query[i]), ref_temp, n == -1 ? std::string::npos : n, noExcept));
-	}
+    for(size_t i = 0; i < query.size(); i++){
+        std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
+        ret.push_back(utils::indexN(std::string(query[i]), ref_temp, n == -1 ? std::string::npos : n, noExcept));
+    }
 
-	return ret;
+    return ret;
 }
 
 //remove residues before and after cleavage
 std::string makeSequenceFromFullSequence(std::string fs)
 {
-	fs = fs.substr(fs.find(".") + 1);
-	fs = fs.substr(0, fs.find_last_of("."));
-	return fs;
+    fs = fs.substr(fs.find(".") + 1);
+    fs = fs.substr(0, fs.find_last_of("."));
+    return fs;
 }
 
 //' Get locations of modified residues in parent protein
@@ -170,30 +204,30 @@ std::string makeSequenceFromFullSequence(std::string fs)
 //' 
 // [[Rcpp::export]]
 Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
-	const Rcpp::CharacterVector& peptideSeq, std::string fastaPath = "", std::string modSep = "|")
+    const Rcpp::CharacterVector& peptideSeq, std::string fastaPath = "", std::string modSep = "|")
 {
-	std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
-	
-	size_t len = ids.size();
-	if(len != peptideSeq.size())
-		throw std::runtime_error("ids.size() != peptideSeq.size()");
-	
-	//init FastaFile
-	utils::FastaFile fasta(true, _fastaPath);
-		if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+    std::string _fastaPath = fastaPath.empty() ? _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+    
+    size_t len = ids.size();
+    if(len != peptideSeq.size())
+        throw std::runtime_error("ids.size() != peptideSeq.size()");
+    
+    //init FastaFile
+    utils::FastaFile fasta(true, _fastaPath);
+        if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
-	Rcpp::CharacterVector ret(len, "");
-	std::vector<int> modIndex_temp;
-	for(size_t i = 0; i < len; i++)
-	{
-		std::string this_modLocs;
-		std::string seqTemp = utils::getModLocs(std::string(peptideSeq[i]), modIndex_temp);
-		for(auto it = modIndex_temp.begin(); it != modIndex_temp.end(); ++it){
-			utils::addChar(fasta.getModifiedResidue(std::string(ids[i]), seqTemp, *it), this_modLocs, modSep);
-		}
-		ret[i] = this_modLocs;
-	}
-	return ret;
+    Rcpp::CharacterVector ret(len, "");
+    std::vector<int> modIndex_temp;
+    for(size_t i = 0; i < len; i++)
+    {
+        std::string this_modLocs;
+        std::string seqTemp = utils::getModLocs(std::string(peptideSeq[i]), modIndex_temp);
+        for(auto it = modIndex_temp.begin(); it != modIndex_temp.end(); ++it){
+            utils::addChar(fasta.getModifiedResidue(std::string(ids[i]), seqTemp, *it), this_modLocs, modSep);
+        }
+        ret[i] = this_modLocs;
+    }
+    return ret;
 }
 
 //' Combine concated mods from multiple peptides into a single string.
@@ -209,17 +243,17 @@ Rcpp::CharacterVector getModifiedResidues(const Rcpp::CharacterVector& ids,
 // [[Rcpp::export]]
 std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 {
-	std::set<std::string> found;
-	
-	size_t len = mods.size();
-	for(size_t i = 0; i < len; i++)
-	{
-		std::vector<std::string> temp;
-		utils::split(std::string(mods[i]), sep, temp);
-		found.insert(temp.begin(), temp.end());
-	}
-	
-	return utils::concat(found.begin(), found.end());
+    std::set<std::string> found;
+    
+    size_t len = mods.size();
+    for(size_t i = 0; i < len; i++)
+    {
+        std::vector<std::string> temp;
+        utils::split(std::string(mods[i]), sep, temp);
+        found.insert(temp.begin(), temp.end());
+    }
+    
+    return utils::concat(found.begin(), found.end());
 }
 
 //' Calculate peptide monoisotopic or average masses.
@@ -235,24 +269,24 @@ std::string combineMods(const Rcpp::CharacterVector& mods, char sep = '|')
 //'
 // [[Rcpp::export]]
 Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
-							 bool monoMass = true,
-							 std::string residueAtoms = "")
+                             bool monoMass = true,
+                             std::string residueAtoms = "")
 {
-	//get data file paths
-	std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-	char avg_mono = monoMass ? 'm' : 'a';
-	
-	//init residues
-	utils::Residues residues(residueAtomsPath);
-	if(!residues.initialize(false)) throw std::runtime_error("Error reading required files for calcMass!");
-	
-	size_t len = sequences.size();
-	Rcpp::NumericVector ret(len);
-	for(size_t i = 0; i < len; i++){
-		ret[i] = residues.calcMass(std::string(sequences[i]), avg_mono);
-	}
-	
-	return ret;
+    //get data file paths
+    std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+    char avg_mono = monoMass ? 'm' : 'a';
+    
+    //init residues
+    utils::Residues residues(residueAtomsPath);
+    if(!residues.initialize(false)) throw std::runtime_error("Error reading required files for calcMass!");
+    
+    size_t len = sequences.size();
+    Rcpp::NumericVector ret(len);
+    for(size_t i = 0; i < len; i++){
+        ret[i] = residues.calcMass(std::string(sequences[i]), avg_mono);
+    }
+    
+    return ret;
 }
 
 //' Calculate peptide molecular formulas
@@ -268,24 +302,24 @@ Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
 //'
 // [[Rcpp::export]]
 Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences,
-															 bool subscripts = false,
-															 std::string residueAtoms = "")
+                                                             bool subscripts = false,
+                                                             std::string residueAtoms = "")
 {
-	//get data file paths
-	std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-	
-	//init residues
-	utils::Residues residues;
-	if(!residues.initialize(residueAtomsPath))
-		throw std::runtime_error("Error reading required files for calcFormula!");
-	
-	size_t len = sequences.size();
-	Rcpp::StringVector ret(len);
-	for(size_t i = 0; i < len; i++){
-		ret[i] = residues.calcFormula(std::string(sequences[i]), subscripts);
-	}
-	
-	return ret;
+    //get data file paths
+    std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+    
+    //init residues
+    utils::Residues residues;
+    if(!residues.initialize(residueAtomsPath))
+        throw std::runtime_error("Error reading required files for calcFormula!");
+    
+    size_t len = sequences.size();
+    Rcpp::StringVector ret(len);
+    for(size_t i = 0; i < len; i++){
+        ret[i] = residues.calcFormula(std::string(sequences[i]), subscripts);
+    }
+    
+    return ret;
 }
 
 //' Convert from 1 letter amino acid codes to 3
@@ -303,19 +337,19 @@ Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences,
 //' 
 // [[Rcpp::export]]
 Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences,
-																		std::string sep_in = "",
-																		std::string sep_out = "",
-																		std::string n_term_out = "",
-																		std::string c_term_out = "")
+                                                                        std::string sep_in = "",
+                                                                        std::string sep_out = "",
+                                                                        std::string n_term_out = "",
+                                                                        std::string c_term_out = "")
 {
-	size_t len = sequences.size();
-	Rcpp::StringVector ret(len);
-	for(size_t i = 0; i < len; i++){
-		ret[i] = utils::oneLetterToThree(std::string(sequences[i]),
-																		 sep_in, sep_out,
-																		 n_term_out, c_term_out);
-	}
-	return ret;
+    size_t len = sequences.size();
+    Rcpp::StringVector ret(len);
+    for(size_t i = 0; i < len; i++){
+        ret[i] = utils::oneLetterToThree(std::string(sequences[i]),
+                                                                         sep_in, sep_out,
+                                                                         n_term_out, c_term_out);
+    }
+    return ret;
 }
 
 //' Convert from 3 letter amino acid codes to 1
@@ -333,19 +367,19 @@ Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences,
 //' 
 // [[Rcpp::export]]
 Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
-																		std::string sep_in = "",
-																		std::string sep_out = "",
-																		std::string n_term_out = "",
-																		std::string c_term_out = "")
+                                                                        std::string sep_in = "",
+                                                                        std::string sep_out = "",
+                                                                        std::string n_term_out = "",
+                                                                        std::string c_term_out = "")
 {
-	size_t len = sequences.size();
-	Rcpp::StringVector ret(len);
-	for(size_t i = 0; i < len; i++){
-		ret[i] = utils::threeLetterToOne(std::string(sequences[i]),
-																		 sep_in, sep_out,
-																		 n_term_out, c_term_out);
-	}
-	return ret;
+    size_t len = sequences.size();
+    Rcpp::StringVector ret(len);
+    for(size_t i = 0; i < len; i++){
+        ret[i] = utils::threeLetterToOne(std::string(sequences[i]),
+                                                                         sep_in, sep_out,
+                                                                         n_term_out, c_term_out);
+    }
+    return ret;
 }
 
 
@@ -360,29 +394,29 @@ Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
 // [[Rcpp::export]]
 Rcpp::DataFrame readFasta(std::string fastaPath = "", long n_entries = 0)
 {
-	std::string _fastaPath = fastaPath.empty() ?
-		_getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+    std::string _fastaPath = fastaPath.empty() ?
+        _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
 
-	//init FastaFile
-	utils::FastaFile fasta(true, _fastaPath);
-		if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+    //init FastaFile
+    utils::FastaFile fasta(true, _fastaPath);
+        if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
-	Rcpp::CharacterVector ids, seqs;
-	
-	size_t len = fasta.getSequenceCount();
-	if(n_entries > len)
-		throw std::runtime_error("n_entries more than the number of entries in file!");
-	len = n_entries == 0 ? len : n_entries;
+    Rcpp::CharacterVector ids, seqs;
+    
+    size_t len = fasta.getSequenceCount();
+    if(n_entries > len)
+        throw std::runtime_error("n_entries more than the number of entries in file!");
+    len = n_entries == 0 ? len : n_entries;
 
-	for(size_t i = 0; i < len; i++)
-	{
-		ids.push_back(fasta.getIndexID(i).c_str());
-		seqs.push_back(fasta.at(i));
-	}
+    for(size_t i = 0; i < len; i++)
+    {
+        ids.push_back(fasta.getIndexID(i).c_str());
+        seqs.push_back(fasta.at(i));
+    }
 
-	return Rcpp::DataFrame::create(Rcpp::Named("id") = ids,
-								   Rcpp::Named("sequence") = seqs,
-								   Rcpp::Named("stringsAsFactors") = false);
+    return Rcpp::DataFrame::create(Rcpp::Named("id") = ids,
+                                   Rcpp::Named("sequence") = seqs,
+                                   Rcpp::Named("stringsAsFactors") = false);
 }
 
 //' Get metadata about a fasta file.
@@ -395,22 +429,22 @@ Rcpp::DataFrame readFasta(std::string fastaPath = "", long n_entries = 0)
 // [[Rcpp::export]]
 Rcpp::List fastaInfo(std::string fastaPath = "")
 {
-	std::string _fastaPath = fastaPath.empty() ?
-		_getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+    std::string _fastaPath = fastaPath.empty() ?
+        _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
 
-	//init FastaFile
-	utils::FastaFile fasta(true, _fastaPath);
-		if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+    //init FastaFile
+    utils::FastaFile fasta(true, _fastaPath);
+        if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
-	size_t len = fasta.getSequenceCount();
-	Rcpp::CharacterVector ids(len, "");
-	for(size_t i = 0; i < len; i++){
-		ids[i] = fasta.getIndexID(i);
-	}
+    size_t len = fasta.getSequenceCount();
+    Rcpp::CharacterVector ids(len, "");
+    for(size_t i = 0; i < len; i++){
+        ids[i] = fasta.getIndexID(i);
+    }
 
-	return Rcpp::List::create(Rcpp::Named("seq_count") = len,
-							  Rcpp::Named("path") = fastaPath,
-							  Rcpp::Named("ids") = ids);
+    return Rcpp::List::create(Rcpp::Named("seq_count") = len,
+                              Rcpp::Named("path") = fastaPath,
+                              Rcpp::Named("ids") = ids);
 }
 
 //' Transpose peptide quantifications for a single protein into amino acid level
@@ -427,8 +461,8 @@ Rcpp::List fastaInfo(std::string fastaPath = "")
 //'
 // [[Rcpp::export]]
 Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences,
-								   const Rcpp::NumericVector& quantification,
-								   const std::string& protein_seq)
+                                   const Rcpp::NumericVector& quantification,
+                                   const std::string& protein_seq)
 {
     if(peptide_sequences.size() != quantification.size())
         throw std::runtime_error("peptide_sequences and quantification must be the same length!");
@@ -455,7 +489,7 @@ Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences,
     return Rcpp::DataFrame::create(Rcpp::Named("residue") = residues,
                                    Rcpp::Named("number") = numbers,
                                    Rcpp::Named("quant") = quantifications,
-								   Rcpp::Named("stringsAsFactors") = false);
+                                   Rcpp::Named("stringsAsFactors") = false);
 }
 
 
@@ -486,61 +520,61 @@ Rcpp::DataFrame transpose_sequence(const Rcpp::StringVector& peptide_sequences,
 //'
 // [[Rcpp::export]]
 Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
-				  unsigned nMissedCleavages = 0, std::string cleavagePattern = "([RK])(?=[^P])",
-				  bool mz_filter = true, std::string residueAtoms = "",
-				  double minMz = 400, double maxMz = 1800,
-				  int minCharge = 1, int maxCharge = 5,
-				  size_t minLen = 6, size_t maxLen = 0)
+                  unsigned nMissedCleavages = 0, std::string cleavagePattern = "([RK])(?=[^P])",
+                  bool mz_filter = true, std::string residueAtoms = "",
+                  double minMz = 400, double maxMz = 1800,
+                  int minCharge = 1, int maxCharge = 5,
+                  size_t minLen = 6, size_t maxLen = 0)
 {
-	//get file paths for atom mass tables
-	std::string residueAtomsPath;
-	
-	if(mz_filter){
-		 residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-	}
+    //get file paths for atom mass tables
+    std::string residueAtomsPath;
+    
+    if(mz_filter){
+         residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+    }
 
-	//check args
-	if(ids.size() != sequences.size())
-		throw std::runtime_error("sequences and ids must be the same length!");
-	
-	size_t _maxLen = maxLen == 0 ? std::string::npos : maxLen;
-	Rcpp::List ret;
-	
-	size_t len = sequences.size();
-	for(size_t i = 0; i < len; i++)
-	{
-		std::vector<std::string> peptides_temp;
-		Rcpp::CharacterVector ret_temp;
-		if(mz_filter)
-		{
-			//init residues
-			utils::Residues residues(residueAtomsPath);
-			if(!residues.initialize(false))
-				throw std::runtime_error("Error reading required files for calcMass!");
-			
-			residues.digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp, nMissedCleavages, false, cleavagePattern,
-							minMz, maxMz, minCharge, maxCharge);
-			
-			std::sort(peptides_temp.begin(), peptides_temp.end(), utils::strLenCompare());
-			for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it)
-			{
-				size_t len_temp = it->length();
-				if(len_temp >= minLen && (_maxLen == std::string::npos ? true : len_temp <= _maxLen))
-					ret_temp.push_back(it->c_str());
-			}
-			
-		}//end if mz_filter
-		else{
-			utils::digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp,
-						  nMissedCleavages, minLen, _maxLen, cleavagePattern);
-			for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it){
-				ret_temp.push_back(it->c_str());
-			}
-		}
-		ret.push_back(ret_temp, std::string(ids[i]));
-	}
-	
-	return ret;
+    //check args
+    if(ids.size() != sequences.size())
+        throw std::runtime_error("sequences and ids must be the same length!");
+    
+    size_t _maxLen = maxLen == 0 ? std::string::npos : maxLen;
+    Rcpp::List ret;
+    
+    size_t len = sequences.size();
+    for(size_t i = 0; i < len; i++)
+    {
+        std::vector<std::string> peptides_temp;
+        Rcpp::CharacterVector ret_temp;
+        if(mz_filter)
+        {
+            //init residues
+            utils::Residues residues(residueAtomsPath);
+            if(!residues.initialize(false))
+                throw std::runtime_error("Error reading required files for calcMass!");
+            
+            residues.digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp, nMissedCleavages, false, cleavagePattern,
+                            minMz, maxMz, minCharge, maxCharge);
+            
+            std::sort(peptides_temp.begin(), peptides_temp.end(), utils::strLenCompare());
+            for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it)
+            {
+                size_t len_temp = it->length();
+                if(len_temp >= minLen && (_maxLen == std::string::npos ? true : len_temp <= _maxLen))
+                    ret_temp.push_back(it->c_str());
+            }
+            
+        }//end if mz_filter
+        else{
+            utils::digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp,
+                          nMissedCleavages, minLen, _maxLen, cleavagePattern);
+            for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it){
+                ret_temp.push_back(it->c_str());
+            }
+        }
+        ret.push_back(ret_temp, std::string(ids[i]));
+    }
+    
+    return ret;
 }
 
 

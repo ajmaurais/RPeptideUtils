@@ -22,7 +22,7 @@ Get protein sequences for a vector of uniprot IDs
 getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
 
 #A fasta file can also be manually spedified.
-fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'peptideUtils')
+fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
 getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 
 }
