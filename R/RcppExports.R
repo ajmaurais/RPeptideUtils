@@ -5,9 +5,18 @@
 #' 
 #' @title Get fragment ion sequence indices.
 #' @param seq Peptide sequence as a string.
-#' @return IntegerMatrix where each row is a fragment ion. The first column is the startig index of the fragment ion in the peptide sequence and the second column is the fragment length.
-getFragmemntIonIndices <- function(seq) {
-    .Call(`_RPeptideUtils_getFragmemntIonIndices`, seq)
+#' @return fragments IntegerMatrix where each row is a fragment ion. The first column is the startig index of the fragment ion in the peptide sequence and the second column is the fragment length.
+getFragmentIonIndices <- function(seq) {
+    .Call(`_RPeptideUtils_getFragmentIonIndices`, seq)
+}
+
+#' Get sequences of fragment ions for peptide sequence.
+#' 
+#' @title Get fragment ion sequences.
+#' @param seq Peptide sequence as a string.
+#' @return fragments Named CharacterVector where the names are the ions and the values are the sequences.
+getFragmentIonSequences <- function(seq) {
+    .Call(`_RPeptideUtils_getFragmentIonSequences`, seq)
 }
 
 #' Get protein sequences for a vector of uniprot IDs

@@ -10,14 +10,25 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// getFragmemntIonIndices
-Rcpp::IntegerMatrix getFragmemntIonIndices(std::string seq);
-RcppExport SEXP _RPeptideUtils_getFragmemntIonIndices(SEXP seqSEXP) {
+// getFragmentIonIndices
+Rcpp::IntegerMatrix getFragmentIonIndices(std::string seq);
+RcppExport SEXP _RPeptideUtils_getFragmentIonIndices(SEXP seqSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type seq(seqSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFragmemntIonIndices(seq));
+    rcpp_result_gen = Rcpp::wrap(getFragmentIonIndices(seq));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFragmentIonSequences
+Rcpp::CharacterVector getFragmentIonSequences(std::string seq);
+RcppExport SEXP _RPeptideUtils_getFragmentIonSequences(SEXP seqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type seq(seqSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFragmentIonSequences(seq));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -229,7 +240,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_RPeptideUtils_getFragmemntIonIndices", (DL_FUNC) &_RPeptideUtils_getFragmemntIonIndices, 1},
+    {"_RPeptideUtils_getFragmentIonIndices", (DL_FUNC) &_RPeptideUtils_getFragmentIonIndices, 1},
+    {"_RPeptideUtils_getFragmentIonSequences", (DL_FUNC) &_RPeptideUtils_getFragmentIonSequences, 1},
     {"_RPeptideUtils_getSequences", (DL_FUNC) &_RPeptideUtils_getSequences, 2},
     {"_RPeptideUtils_nBefore", (DL_FUNC) &_RPeptideUtils_nBefore, 4},
     {"_RPeptideUtils_nAfter", (DL_FUNC) &_RPeptideUtils_nAfter, 4},

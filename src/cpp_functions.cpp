@@ -29,13 +29,13 @@ std::string _getPackageData(std::string filename, std::string packageName = "RPe
 //' 
 //' @title Get fragment ion sequence indices.
 //' @param seq Peptide sequence as a string.
-//' @return IntegerMatrix where each row is a fragment ion. The first column is the startig index of the fragment ion in the peptide sequence and the second column is the fragment length.
+//' @return fragments IntegerMatrix where each row is a fragment ion. The first column is the startig index of the fragment ion in the peptide sequence and the second column is the fragment length.
 // [[Rcpp::export]]
-Rcpp::IntegerMatrix getFragmemntIonIndices(std::string seq)
+Rcpp::IntegerMatrix getFragmentIonIndices(std::string seq)
 {
     std::map<std::string, utils::SizePair> ions;
     utils::seqToIons(seq, ions);
-    Rcpp::IntegerMatrix ret(ions.size(), 2);
+    Rcpp::IntegerMatrix fragments(ions.size(), 2);
     Rcpp::CharacterVector keys;
     Rcpp::IntegerVector start, length;
     for(auto ion: ions){
@@ -43,11 +43,31 @@ Rcpp::IntegerMatrix getFragmemntIonIndices(std::string seq)
         start.push_back(ion.second.first);
         length.push_back(ion.second.second);
     }
-    rownames(ret) = keys;
-    colnames(ret) = Rcpp::CharacterVector::create("start", "length");
-    ret(Rcpp::_, 0) = start;
-    ret(Rcpp::_, 1) = length;
-    return ret;
+    rownames(fragments) = keys;
+    colnames(fragments) = Rcpp::CharacterVector::create("start", "length");
+    fragments(Rcpp::_, 0) = start;
+    fragments(Rcpp::_, 1) = length;
+    return fragments;
+}
+
+//' Get sequences of fragment ions for peptide sequence.
+//' 
+//' @title Get fragment ion sequences.
+//' @param seq Peptide sequence as a string.
+//' @return fragments Named CharacterVector where the names are the ions and the values are the sequences.
+// [[Rcpp::export]]
+Rcpp::CharacterVector getFragmentIonSequences(std::string seq)
+{
+    std::map<std::string, utils::SizePair> ions;
+    utils::seqToIons(seq, ions);
+    Rcpp::CharacterVector keys;
+    Rcpp::CharacterVector fragments;
+    for(auto ion: ions){
+        keys.push_back(ion.first.c_str());
+        fragments.push_back(seq.substr(ion.second.first, ion.second.second).c_str());
+    }
+    fragments.names() = keys;
+    return fragments;
 }
 
 //' Get protein sequences for a vector of uniprot IDs
