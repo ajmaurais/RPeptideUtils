@@ -242,17 +242,3 @@ digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([R
     .Call(`_RPeptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
 }
 
-#' Space a list of sequence indecies into y levels for a sequence coverage plot.
-#' 
-#' @title Space a list of sequence indecies for a coverage plot.
-#' @param begin_i IngegerVector of begining indices.
-#' @param end_i IngegerVector of ending indices.
-#' @return IngegerVector of y levels for each sequence.
-#' 
-#' @examples
-#' spaceCoveragePlot(c(1, 5, 30, 50), c(20, 20, 48, 60))
-#'
-spaceCoveragePlot <- function(begin_i, end_i) {
-    .Call(`_RPeptideUtils_spaceCoveragePlot`, begin_i, end_i)
-}
-

@@ -226,18 +226,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// spaceCoveragePlot
-Rcpp::IntegerVector spaceCoveragePlot(const Rcpp::IntegerVector& begin_i, const Rcpp::IntegerVector& end_i);
-RcppExport SEXP _RPeptideUtils_spaceCoveragePlot(SEXP begin_iSEXP, SEXP end_iSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type begin_i(begin_iSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type end_i(end_iSEXP);
-    rcpp_result_gen = Rcpp::wrap(spaceCoveragePlot(begin_i, end_i));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RPeptideUtils_getFragmentIonIndices", (DL_FUNC) &_RPeptideUtils_getFragmentIonIndices, 1},
@@ -256,7 +244,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RPeptideUtils_fastaInfo", (DL_FUNC) &_RPeptideUtils_fastaInfo, 1},
     {"_RPeptideUtils_transpose_sequence", (DL_FUNC) &_RPeptideUtils_transpose_sequence, 3},
     {"_RPeptideUtils_digest", (DL_FUNC) &_RPeptideUtils_digest, 12},
-    {"_RPeptideUtils_spaceCoveragePlot", (DL_FUNC) &_RPeptideUtils_spaceCoveragePlot, 2},
     {NULL, NULL, 0}
 };
 
