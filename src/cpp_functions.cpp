@@ -589,4 +589,56 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 }
 
 
+}
+
+
+// [[Rcpp::export]]
+Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "", bool progressBar = true)
+{
+    // convert peptid seq char*s to std::string
+    size_t len = peptides.size();
+    std::vector<std::string> peptides_s;
+    for(size_t i = 0; i < len; i++) {
+        peptides_s.push_back(std::string(peptides[i]));
+    }
+
+    // read fasta file
+    std::string _fastaPath = fastaPath.empty() ?
+        _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+
+    //init FastaFile
+    utils::FastaFile fasta(true, _fastaPath);
+        if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+
+    if(progressBar) Rcpp::Rcout << "Reading fasta file..." << std::flush;
+    std::map<std::string, std::string> sequences;
+    size_t n_seq = fasta.getSequenceCount();
+    for(size_t i = 0; i < n_seq; i++) {
+        sequences[fasta.getIndexID(i)] = fasta.at(i);
+    }
+    if(progressBar) Rcpp::Rcout << " Done!\n";
+    
+    size_t n_searches = len * n_seq;
+    size_t progressInterval = 1e4;
+    progressBar = progressBar & (n_searches > progressInterval);
+    if(progressBar) Rcpp::Rcout << "Searching protein sequences for peptides...\n";
+    size_t i = 0;
+    Rcpp::List ret;
+    for(auto peptide: peptides_s) {
+        Rcpp::CharacterVector matchingIds;
+        for(auto prot: sequences) {
+            if(prot.second.find(peptide) != std::string::npos) {
+                matchingIds.push_back(prot.first.c_str());
+            }
+            i++;
+            if(progressBar && i % progressInterval == 0) {
+                utils::printProgress(float(i) / float(n_searches), Rcpp::Rcout);
+            }
+        }
+        ret.push_back(matchingIds, peptide);
+    }
+    if(progressBar) Rcpp::Rcout << "\nDone!\n";
+
+    return ret;
+}
 

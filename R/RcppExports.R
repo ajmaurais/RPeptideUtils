@@ -242,3 +242,7 @@ digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([R
     .Call(`_RPeptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
 }
 
+matchingIds <- function(peptides, fastaPath = "", progressBar = TRUE) {
+    .Call(`_RPeptideUtils_matchingIds`, peptides, fastaPath, progressBar)
+}
+
