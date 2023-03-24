@@ -115,7 +115,7 @@ Rcpp::CharacterVector getSequences(const Rcpp::CharacterVector& ids, std::string
 //'
 // [[Rcpp::export]]
 Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
-                              const Rcpp::IntegerVector& n, bool noExcept = false)
+                              size_t n, bool noExcept = false)
 {
     Rcpp::CharacterVector ret;
 
@@ -124,14 +124,10 @@ Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::Ch
         if(len != query.size())
             throw std::runtime_error("query and ref must be the same length!");
     }
-    if(n.size() != 1){
-        if(len != n.size())
-            throw std::runtime_error("n and ref must be the same length!");
-    }
-for(size_t i = 0; i < query.size(); i++){
+
+    for(size_t i = 0; i < query.size(); i++){
         std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
-        int n_temp = len == 1 ? n[0] : n[i];
-        ret.push_back(utils::nBefore(std::string(query[i]), ref_temp, n_temp, noExcept));
+        ret.push_back(utils::nBefore(std::string(query[i]), ref_temp, n, noExcept));
     }
 
     return ret;
@@ -149,24 +145,19 @@ for(size_t i = 0; i < query.size(); i++){
 //'
 // [[Rcpp::export]]
 Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref,
-                             const Rcpp::IntegerVector& n, bool noExcept = false)
+                             size_t n, bool noExcept = false)
 {
     Rcpp::CharacterVector ret;
 
-    size_t len = ref.size();
-    if(len != 1){
-        if(len != query.size())
+    size_t ref_len = ref.size();
+    if(ref_len != 1){
+        if(ref_len != query.size())
             throw std::runtime_error("query and ref must be the same length!");
-    }
-    if(n.size() != 1){
-        if(len != n.size())
-            throw std::runtime_error("n and ref must be the same length!");
     }
 
     for(size_t i = 0; i < query.size(); i++){
-        std::string ref_temp = std::string(len == 1 ? ref[0] : ref[i]);
-        int n_temp = len == 1 ? n[0] : n[i];
-        ret.push_back(utils::nAfter(std::string(query[i]), ref_temp, n_temp, noExcept));
+        std::string ref_temp = std::string(ref_len == 1 ? ref[0] : ref[i]);
+        ret.push_back(utils::nAfter(std::string(query[i]), ref_temp, n, noExcept));
     }
 
     return ret;

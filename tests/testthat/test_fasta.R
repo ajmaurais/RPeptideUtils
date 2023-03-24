@@ -44,3 +44,27 @@ test_that('Read fasta.', {
                                          package = 'RPeptideUtils', mustWork = T), -1)
 	)
 })
+
+test_that('nAfter gives corect number of residues', {
+    expect_equal(nchar(RPeptideUtils::nAfter(c('KLNKENKTL', 'SALSGHLE'), sequences, 1)), rep(1, 2))
+    expect_equal(nchar(RPeptideUtils::nAfter(c('KLNKENKTL', 'SALSGHLE'), sequences, 2)), rep(2, 2))
+    expect_equal(nchar(RPeptideUtils::nAfter(c('KLNKENKTL', 'SALSGHLE'), sequences, 3)), rep(3, 2))
+})
+
+test_that('nBefore gives corect number of residues', {
+    expect_equal(nchar(RPeptideUtils::nBefore(c('KLNKENKTL', 'SALSGHLE'), sequences, 1)), rep(1, 2))
+    expect_equal(nchar(RPeptideUtils::nBefore(c('KLNKENKTL', 'SALSGHLE'), sequences, 2)), rep(2, 2))
+    expect_equal(nchar(RPeptideUtils::nBefore(c('KLNKENKTL', 'SALSGHLE'), sequences, 3)), rep(3, 2))
+})
+
+test_that('nAfter gives corect residues', {
+    expect_equal(RPeptideUtils::nAfter(c('KLNKENKTL', 'SALSGHLE'), sequences, 1), c('K', 'T'))
+    expect_equal(RPeptideUtils::nAfter(c('KLNKENKTL', 'SALSGHLE'), sequences, 2), c('KR', 'TV'))
+    expect_equal(RPeptideUtils::nAfter(c('KLNKENKTL', 'SALSGHLE'), sequences, 3), c('KRI', 'TVI'))
+})
+
+test_that('nBefore gives corect number of residues', {
+    expect_equal(RPeptideUtils::nBefore(c('KLNKENKTL', 'SALSGHLE'), sequences, 1), c('T', 'K'))
+    expect_equal(RPeptideUtils::nBefore(c('KLNKENKTL', 'SALSGHLE'), sequences, 2), c('AT', 'LK'))
+    expect_equal(RPeptideUtils::nBefore(c('KLNKENKTL', 'SALSGHLE'), sequences, 3), c('LAT', 'ALK'))
+})

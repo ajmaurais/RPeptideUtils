@@ -45,28 +45,28 @@ BEGIN_RCPP
 END_RCPP
 }
 // nBefore
-Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, const Rcpp::IntegerVector& n, bool noExcept);
+Rcpp::CharacterVector nBefore(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, size_t n, bool noExcept);
 RcppExport SEXP _RPeptideUtils_nBefore(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query(querySEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector >::type ref(refSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type noExcept(noExceptSEXP);
     rcpp_result_gen = Rcpp::wrap(nBefore(query, ref, n, noExcept));
     return rcpp_result_gen;
 END_RCPP
 }
 // nAfter
-Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, const Rcpp::IntegerVector& n, bool noExcept);
+Rcpp::CharacterVector nAfter(const Rcpp::CharacterVector& query, const Rcpp::CharacterVector ref, size_t n, bool noExcept);
 RcppExport SEXP _RPeptideUtils_nAfter(SEXP querySEXP, SEXP refSEXP, SEXP nSEXP, SEXP noExceptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type query(querySEXP);
     Rcpp::traits::input_parameter< const Rcpp::CharacterVector >::type ref(refSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type noExcept(noExceptSEXP);
     rcpp_result_gen = Rcpp::wrap(nAfter(query, ref, n, noExcept));
     return rcpp_result_gen;
