@@ -5,6 +5,9 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <thread>
+#include <atomic>
+#include <chrono>
 
 #include <fastaFile.hpp>
 #include <molecularFormula.hpp>
@@ -588,14 +591,58 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
     return ret;
 }
 
+void matchingIdsWorker(const std::map<std::string, std::string>& proteins,
+                       std::map<std::string, std::vector<std::string>  >& matchesIds,
+                       std::atomic<size_t>& searchIndex) {
+    
+    for(auto peptide: matchesIds) {
+        Rcpp::Rcout << peptide.first << '\n';
+        for(auto prot: proteins) {
+            if(prot.second.find(peptide.first) != std::string::npos) {
+                matchesIds[peptide.first].push_back(prot.first);
+            }
+            searchIndex++;
+        }
+        Rcpp::Rcout << peptide.first << "done \n";
+    }
 
+    Rcpp::Rcout << "Thread is done \n";
 }
 
+void progressBarWorker(std::atomic<size_t>& index, size_t count,
+                       const std::string& message, int sleepTime)
+{
+    size_t lastIndex = index.load();
+    size_t curIndex = lastIndex;
+    int noChangeIterations = 0;
+
+    Rcpp::Rcout << message << '\n';
+    while(index < count) {
+        curIndex = index.load();
+
+        Rcpp::Rcout << "Current index is: " << curIndex << '\n';
+        
+        if(lastIndex == curIndex) noChangeIterations++;
+        else noChangeIterations = 0;
+
+        if(noChangeIterations > 5)
+            throw std::runtime_error("Thread timeout!");
+
+		utils::printProgress(float(curIndex) / float(count));
+		std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
+
+        lastIndex = curIndex;
+    }
+	utils::printProgress(float(index.load()) / float(count));
+    Rcpp::Rcout << NEW_LINE;
+    Rcpp::Rcout << "Done!\n";
+}
 
 // [[Rcpp::export]]
-Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "", bool progressBar = true)
+Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "",
+                       bool progressBar = true, size_t n_thread = 0)
 {
-    // convert peptid seq char*s to std::string
+    // convert peptid seq char*(s) to std::string
     size_t len = peptides.size();
     std::vector<std::string> peptides_s;
     for(size_t i = 0; i < len; i++) {
@@ -605,11 +652,8 @@ Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "
     // read fasta file
     std::string _fastaPath = fastaPath.empty() ?
         _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
-
-    //init FastaFile
     utils::FastaFile fasta(true, _fastaPath);
-        if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
-
+    if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
     if(progressBar) Rcpp::Rcout << "Reading fasta file..." << std::flush;
     std::map<std::string, std::string> sequences;
     size_t n_seq = fasta.getSequenceCount();
@@ -617,28 +661,66 @@ Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "
         sequences[fasta.getIndexID(i)] = fasta.at(i);
     }
     if(progressBar) Rcpp::Rcout << " Done!\n";
-    
-    size_t n_searches = len * n_seq;
-    size_t progressInterval = 1e4;
-    progressBar = progressBar & (n_searches > progressInterval);
-    if(progressBar) Rcpp::Rcout << "Searching protein sequences for peptides...\n";
-    size_t i = 0;
-    Rcpp::List ret;
-    for(auto peptide: peptides_s) {
-        Rcpp::CharacterVector matchingIds;
-        for(auto prot: sequences) {
-            if(prot.second.find(peptide) != std::string::npos) {
-                matchingIds.push_back(prot.first.c_str());
-            }
-            i++;
-            if(progressBar && i % progressInterval == 0) {
-                utils::printProgress(float(i) / float(n_searches), Rcpp::Rcout);
-            }
-        }
-        ret.push_back(matchingIds, peptide);
-    }
-    if(progressBar) Rcpp::Rcout << "\nDone!\n";
 
+    // split up input to fit worker threads
+    if(n_thread == 0)
+        n_thread = std::min(size_t(std::thread::hardware_concurrency()), len);
+    size_t const n_searches = len * n_seq;
+    size_t peptides_per_thread = len / n_thread;
+    if(len % n_thread != 0) peptides_per_thread += 1;
+    Rcpp::Rcout << "Done calculating n_thread.\n\tn_thread is: " << n_thread <<
+        "\n\t" << peptides_per_thread << " peptides per thread.\n";
+
+    // init threads
+    std::vector<std::thread> threads;
+    std::vector<std::map<std::string, std::vector<std::string> > > splitPeptides;
+    size_t begin, end;
+    size_t threadIndex = 0;
+    std::atomic<size_t> searchIndex(0);
+    for(size_t i = 0; i < len; i += peptides_per_thread) {
+        Rcpp::Rcout << "Init thread " << i << '\n';
+        begin = i;
+        end = (begin + peptides_per_thread > n_searches ? n_searches : begin + peptides_per_thread);
+        splitPeptides.push_back(std::map<std::string, std::vector<std::string> >());
+        Rcpp::Rcout << "begin: " << begin << " end " << end << "\n";
+
+        Rcpp::Rcout << "Init splitPeptides\n";
+        Rcpp::Rcout << "splitPeptides length " << splitPeptides.size() << '\n';
+        for(size_t j = begin; j < end; j++){
+            splitPeptides[threadIndex][peptides_s.at(j)] = std::vector<std::string> ();
+        }
+        Rcpp::Rcout << "Starting thread\n";
+
+        threads.emplace_back(matchingIdsWorker, std::ref(sequences),
+                             std::ref(splitPeptides[threadIndex]),
+                             std::ref(searchIndex));
+        threadIndex++;
+    }
+
+    if(progressBar) {
+        Rcpp::Rcout << "Starting progress bar\n";
+        std::string message = "There are " + std::to_string(n_searches) +
+            "searches to perform...\nSearching protein sequences for peptides using " +
+            std::to_string(n_thread) + " threads...";
+        threads.emplace_back(progressBarWorker, std::ref(searchIndex),
+                             n_searches, message, 1);
+    }
+
+    Rcpp::Rcout << "Joining threads...\n";
+    for(auto& t : threads) {
+        t.join();
+        Rcpp::Rcout << "Joined thread...\n";
+    }
+    
+    Rcpp::Rcout << "Init ret\n";
+    Rcpp::List ret;
+    for(size_t i = 0; i < n_thread; i++) {
+        for(auto peptide : splitPeptides[i]) {
+            ret.push_back(peptide.second, peptide.first);
+        }
+    }
+    
+    Rcpp::Rcout << "Exit\n";
     return ret;
 }
 
