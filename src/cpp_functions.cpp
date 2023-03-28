@@ -687,18 +687,16 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
 
     auto* splitPeptides = new std::map<std::string, std::vector<std::string> >[nThread];
     size_t begin, end;
-    size_t threadIndex = 0;
-    for(size_t i = 0; i < len; i += peptides_per_thread) {
-        begin = i;
+    for(size_t i = 0; i < nThread; i++) {
+        begin = i * peptides_per_thread;
         end = (begin + peptides_per_thread > len ? len : begin + peptides_per_thread);
 
         for(size_t j = begin; j < end; j++){
-            splitPeptides[threadIndex][peptides_s.at(j)] = std::vector<std::string> ();
+            splitPeptides[i][peptides_s.at(j)] = std::vector<std::string> ();
         }
         threads.emplace_back(matchingProteinsWorker, std::ref(sequences),
-                             std::ref(splitPeptides[threadIndex]),
+                             std::ref(splitPeptides[i]),
                              std::ref(peptideIndex));
-        threadIndex++;
     }
 
     for(auto& t : threads) {
