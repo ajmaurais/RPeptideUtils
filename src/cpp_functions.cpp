@@ -351,10 +351,10 @@ Rcpp::StringVector calcFormula(const Rcpp::StringVector& sequences,
 //' 
 // [[Rcpp::export]]
 Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences,
-                                                                        std::string sep_in = "",
-                                                                        std::string sep_out = "",
-                                                                        std::string n_term_out = "",
-                                                                        std::string c_term_out = "")
+                                    std::string sep_in = "",
+                                    std::string sep_out = "",
+                                    std::string n_term_out = "",
+                                    std::string c_term_out = "")
 {
     size_t len = sequences.size();
     Rcpp::StringVector ret(len);
@@ -381,10 +381,10 @@ Rcpp::StringVector oneLetterToThree(Rcpp::StringVector sequences,
 //' 
 // [[Rcpp::export]]
 Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
-                                                                        std::string sep_in = "",
-                                                                        std::string sep_out = "",
-                                                                        std::string n_term_out = "",
-                                                                        std::string c_term_out = "")
+                                    std::string sep_in = "",
+                                    std::string sep_out = "",
+                                    std::string n_term_out = "",
+                                    std::string c_term_out = "")
 {
     size_t len = sequences.size();
     Rcpp::StringVector ret(len);
@@ -566,7 +566,8 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
             if(!residues.initialize(false))
                 throw std::runtime_error("Error reading required files for calcMass!");
             
-            residues.digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp, nMissedCleavages, false, cleavagePattern,
+            residues.digest(utils::removeWhitespace(std::string(sequences[i])),
+                            peptides_temp, nMissedCleavages, false, cleavagePattern,
                             minMz, maxMz, minCharge, maxCharge);
             
             std::sort(peptides_temp.begin(), peptides_temp.end(), utils::strLenCompare());
@@ -648,7 +649,7 @@ void progressBarWorker(std::atomic<size_t>& index, size_t count,
 Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPath = "",
                        bool progressBar = true, size_t nThread = 0)
 {
-    // convert peptid seq char*(s) to std::string
+    // convert peptide seq char*(s) to std::string
     size_t len = peptides.size();
     std::vector<std::string> peptides_s;
     for(size_t i = 0; i < len; i++) {
@@ -669,12 +670,6 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
     }
     if(progressBar) Rcpp::Rcout << " Done!\n";
 
-    // split up input to fit worker threads
-    if(nThread == 0)
-        nThread = std::min(size_t(std::thread::hardware_concurrency()), len);
-    size_t peptides_per_thread = len / nThread;
-    if(len % nThread != 0) peptides_per_thread += 1;
-
     // init threads
     std::vector<std::thread> threads;
     std::atomic<size_t> peptideIndex(0);
@@ -684,6 +679,12 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
         threads.emplace_back(progressBarWorker, std::ref(peptideIndex),
                              len, message, 1);
     }
+
+    // split up input to fit worker threads
+    if(nThread == 0)
+        nThread = std::min(size_t(std::thread::hardware_concurrency()), len);
+    size_t peptides_per_thread = len / nThread;
+    if(len % nThread != 0) peptides_per_thread += 1;
 
     auto* splitPeptides = new std::map<std::string, std::vector<std::string> >[nThread];
     size_t begin, end;
@@ -699,14 +700,15 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
                              std::ref(peptideIndex));
     }
 
+    // join threads
     for(auto& t : threads) {
         t.join();
     }
 
     Rcpp::List ret;
     for(size_t i = 0; i < nThread; i++) {
-        for(auto it = splitPeptides[i].begin(); it != splitPeptides[i].end(); ++it) {
-            ret.push_back(it->second, it->first);
+        for(auto& it : splitPeptides[i]) {
+            ret.push_back(it.second, it.first);
         }
     }
 
