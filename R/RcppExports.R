@@ -242,7 +242,7 @@ digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([R
     .Call(`_RPeptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
 }
 
-#' Given a vector of peptide sequences, find all the proteins containing the peptied in a fasta file.
+#' Given a vector of peptide sequences, find all the proteins containing the peptide in a fasta file.
 #' 
 #' @title Find all proteins containing peptide sequences.
 #' @param peptides A character vector of peptide sequences.

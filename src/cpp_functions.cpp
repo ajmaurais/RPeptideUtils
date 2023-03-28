@@ -619,7 +619,7 @@ void progressBarWorker(std::atomic<size_t>& index, size_t count,
         if(lastIndex == curIndex) noChangeIterations++;
         else noChangeIterations = 0;
 
-        if(noChangeIterations > 5)
+        if(noChangeIterations > 30)
             throw std::runtime_error("Thread timeout!");
 
         utils::printProgress(float(curIndex) / float(count));
@@ -632,7 +632,7 @@ void progressBarWorker(std::atomic<size_t>& index, size_t count,
     Rcpp::Rcout << "Done!\n";
 }
 
-//' Given a vector of peptide sequences, find all the proteins containing the peptied in a fasta file.
+//' Given a vector of peptide sequences, find all the proteins containing the peptide in a fasta file.
 //' 
 //' @title Find all proteins containing peptide sequences.
 //' @param peptides A character vector of peptide sequences.
@@ -670,6 +670,12 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
     }
     if(progressBar) Rcpp::Rcout << " Done!\n";
 
+    // split up input to fit worker threads
+    if(nThread == 0)
+        nThread = std::min(size_t(std::thread::hardware_concurrency()), len);
+    size_t peptides_per_thread = len / nThread;
+    if(len % nThread != 0) peptides_per_thread += 1;
+
     // init threads
     std::vector<std::thread> threads;
     std::atomic<size_t> peptideIndex(0);
@@ -679,12 +685,6 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
         threads.emplace_back(progressBarWorker, std::ref(peptideIndex),
                              len, message, 1);
     }
-
-    // split up input to fit worker threads
-    if(nThread == 0)
-        nThread = std::min(size_t(std::thread::hardware_concurrency()), len);
-    size_t peptides_per_thread = len / nThread;
-    if(len % nThread != 0) peptides_per_thread += 1;
 
     auto* splitPeptides = new std::map<std::string, std::vector<std::string> >[nThread];
     size_t begin, end;
@@ -705,11 +705,22 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
         t.join();
     }
 
+    if(progressBar) Rcpp::Rcout << "Generating output...\n";
     Rcpp::List ret;
     for(size_t i = 0; i < nThread; i++) {
         for(auto& it : splitPeptides[i]) {
+            if(progressBar) {
+                if(ret.size() % 1000 == 0) {
+                    utils::printProgress(float(ret.size()) / float(len));
+                }
+            }
+
             ret.push_back(it.second, it.first);
         }
+    }
+    if(progressBar){ 
+        utils::printProgress(float(ret.size()) / float(len));
+        Rcpp::Rcout << "\nDone!\n";
     }
 
     delete [] splitPeptides;

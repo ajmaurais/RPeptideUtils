@@ -19,7 +19,7 @@ matchingProteins(peptides, fastaPath = "", progressBar = TRUE, nThread = 0L)
 List where names are peptide sequences, and values are the ids for the matching proteins.
 }
 \description{
-Given a vector of peptide sequences, find all the proteins containing the peptied in a fasta file.
+Given a vector of peptide sequences, find all the proteins containing the peptide in a fasta file.
 }
 \examples{
 fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
