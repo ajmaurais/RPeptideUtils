@@ -9,7 +9,7 @@ getSequences(ids, fastaPath = "")
 \arguments{
 \item{ids}{CharacterVector of uniprot IDs}
 
-\item{fastaPath}{path to fasta formated file to look up protein sequences.}
+\item{fastaPath}{path to fasta formatted file to look up protein sequences.}
 }
 \value{
 CharacterVector of protein sequences in same order as ids.
@@ -21,7 +21,7 @@ Get protein sequences for a vector of uniprot IDs
 #By default the fasta file included in the package containing human protein sequences is used.
 getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
 
-#A fasta file can also be manually spedified.
+#A fasta file can also be manually specified.
 fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
 getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 

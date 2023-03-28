@@ -18,7 +18,7 @@ DataFrame with columns for 'residue', 'number', and 'quant'.
 }
 \description{
 Transpose peptide quantifications for a single protein into amino acid level
-quantifications. An row will be included in the output for each time an amino acid
+quantifications. A row will be included in the output for each time an amino acid
 at a given position was included in a peptide in peptide_sequences. Additional processing
 is required to obtain summary values for each amino acid position.
 }

@@ -9,7 +9,7 @@ readFasta(fastaPath = "", n_entries = 0L)
 \arguments{
 \item{fastaPath}{Path to fasta file. Be default, fasta file included in package is used.}
 
-\item{n_entries}{Number of entries to read. If 0, all entires are read.}
+\item{n_entries}{Number of entries to read. If 0, all entries are read.}
 }
 \value{
 DataFrame with columns for ID and sequence.

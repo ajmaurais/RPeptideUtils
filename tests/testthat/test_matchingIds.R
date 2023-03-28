@@ -42,13 +42,13 @@ test_that('Parallel processing works', {
 })
 
 test_that("Edge cases don't fail", {
-    # A peptide that dosen't exist in the file
+    # A peptide that doesn't exist in the file
     expect_equal(RPeptideUtils::matchingProteins('THISPEPTIDEDSENTEXIST',
                                                  fastaPath = system.file('extdata/Human_uniprot-reviewed_20171020.fasta',
                                                                          package = 'RPeptideUtils', mustWork = T),
                                                  nThread = 1, progressBar = F),
                 list('THISPEPTIDEDSENTEXIST' = character(0)))
-    # peptides with alot of matches
+    # peptides with a lot of matches
     expect_equal(sortList(lapply(RPeptideUtils::matchingProteins(names(multiMatches),
                                                                  fastaPath = system.file('extdata/Human_uniprot-reviewed_20171020.fasta',
                                                                                          package = 'RPeptideUtils', mustWork = T),

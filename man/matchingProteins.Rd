@@ -9,7 +9,7 @@ matchingProteins(peptides, fastaPath = "", progressBar = TRUE, nThread = 0L)
 \arguments{
 \item{peptides}{A character vector of peptide sequences.}
 
-\item{fastaPath}{path to fasta formated file to look up protein sequences.}
+\item{fastaPath}{path to fasta formatted file to look up protein sequences.}
 
 \item{progressBar}{Show progress bar?}
 

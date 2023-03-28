@@ -11,7 +11,7 @@ getModifiedResidues(ids, peptideSeq, fastaPath = "", modSep = "|")
 
 \item{peptideSeq}{CharacterVector of peptide sequences containing modifications}
 
-\item{fastaPath}{path to fasta formated file to look up protein sequences}
+\item{fastaPath}{path to fasta formatted file to look up protein sequences}
 
 \item{modSep}{delimiter for multiple modifications}
 }

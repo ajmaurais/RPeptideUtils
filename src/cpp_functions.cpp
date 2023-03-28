@@ -77,14 +77,14 @@ Rcpp::CharacterVector getFragmentIonSequences(std::string seq)
 //' 
 //' @title Get protein IDs in fasta file for a vector of Uniprot IDs
 //' @param ids CharacterVector of uniprot IDs
-//' @param fastaPath path to fasta formated file to look up protein sequences. 
+//' @param fastaPath path to fasta formatted file to look up protein sequences. 
 //' @return CharacterVector of protein sequences in same order as ids.
 //' 
 //' @examples
 //' #By default the fasta file included in the package containing human protein sequences is used.
 //' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
 //' 
-//' #A fasta file can also be manually spedified.
+//' #A fasta file can also be manually specified.
 //' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
 //' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
 //' 
@@ -207,7 +207,7 @@ std::string makeSequenceFromFullSequence(std::string fs)
 //' Get locations of modified residues in parent protein
 //'
 //' @title Get locations of modified residues in parent protein
-//' @param fastaPath path to fasta formated file to look up protein sequences
+//' @param fastaPath path to fasta formatted file to look up protein sequences
 //' @param ids CharacterVector of Uniprot IDs
 //' @param peptideSeq CharacterVector of peptide sequences containing modifications
 //' @param modSep delimiter for multiple modifications
@@ -402,7 +402,7 @@ Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
 //' @title Read fasta file.
 //' 
 //' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
-//' @param n_entries Number of entries to read. If 0, all entires are read.
+//' @param n_entries Number of entries to read. If 0, all entries are read.
 //' @return DataFrame with columns for ID and sequence.
 //'
 // [[Rcpp::export]]
@@ -462,7 +462,7 @@ Rcpp::List fastaInfo(std::string fastaPath = "")
 }
 
 //' Transpose peptide quantifications for a single protein into amino acid level
-//' quantifications. An row will be included in the output for each time an amino acid
+//' quantifications. A row will be included in the output for each time an amino acid
 //' at a given position was included in a peptide in peptide_sequences. Additional processing
 //' is required to obtain summary values for each amino acid position.
 //' 
@@ -636,7 +636,7 @@ void progressBarWorker(std::atomic<size_t>& index, size_t count,
 //' 
 //' @title Find all proteins containing peptide sequences.
 //' @param peptides A character vector of peptide sequences.
-//' @param fastaPath path to fasta formated file to look up protein sequences. 
+//' @param fastaPath path to fasta formatted file to look up protein sequences. 
 //' @param progressBar Show progress bar?
 //' @param nThread Number of threads to use. By default use 1 thread per virtual core on machine.
 //' @return List where names are peptide sequences, and values are the ids for the matching proteins.

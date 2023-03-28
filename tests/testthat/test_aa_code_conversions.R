@@ -17,7 +17,7 @@ test_that("one letter conversions work", {
   expect_error(oneLetterToThree('PheLysAsnAssLeuArg'))
 })
 
-test_that("deliminators are handeled", {
+test_that("deliminators are handled", {
   expect_equal(oneLetterToThree('ALC*AEFK', sep_out = '-'), "Ala-Leu-Cys*-Ala-Glu-Phe-Lys")
   expect_equal(oneLetterToThree('LLYVSCNPR', sep_out = '-'), "Leu-Leu-Tyr-Val-Ser-Cys-Asn-Pro-Arg")
   expect_equal(oneLetterToThree('A-L-C*-A-E-F-K', sep_in = '-', sep_out = '-'), "Ala-Leu-Cys*-Ala-Glu-Phe-Lys")
@@ -35,14 +35,14 @@ test_that("three letter conversions work", {
   expect_error(threeLetterToOne('FKNBLR'))
 })
 
-test_that("deliminators are handeled", {
+test_that("deliminators are handled", {
   expect_equal(threeLetterToOne("Ala-Leu-Cys*-Ala-Glu-Phe-Lys", sep_in = '-'), 'ALC*AEFK')
   expect_equal(threeLetterToOne("Leu-Leu-Tyr-Val-Ser-Cys-Asn-Pro-Arg", sep_in = '-'), 'LLYVSCNPR')
   expect_equal(threeLetterToOne("Ala-Leu-Cys*-Ala-Glu-Phe-Lys", sep_in = '-', sep_out = '-'), 'A-L-C*-A-E-F-K')
   expect_equal(threeLetterToOne("Leu-Leu-Tyr-Val-Ser-Cys-Asn-Pro-Arg", sep_in = '-', sep_out = '-'), 'L-L-Y-V-S-C-N-P-R')
 })
 
-context("Functons interconvert")
+context("Functions interconvert")
 
 test_that("functions can convert back and forth", {
   expect_equal(threeLetterToOne(oneLetterToThree(one_letter_sequences)), one_letter_sequences)
