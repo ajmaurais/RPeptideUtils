@@ -242,8 +242,21 @@ digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([R
     .Call(`_RPeptideUtils_digest`, sequences, ids, nMissedCleavages, cleavagePattern, mz_filter, residueAtoms, minMz, maxMz, minCharge, maxCharge, minLen, maxLen)
 }
 
-matchingIds <- function(peptides, fastaPath = "", progressBar = TRUE, n_thread = 0L) {
-    .Call(`_RPeptideUtils_matchingIds`, peptides, fastaPath, progressBar, n_thread)
+#' Given a vector of peptide sequences, find all the proteins containing the peptied in a fasta file.
+#' 
+#' @title Find all proteins containing peptide sequences.
+#' @param peptides A character vector of peptide sequences.
+#' @param fastaPath path to fasta formated file to look up protein sequences. 
+#' @param progressBar Show progress bar?
+#' @param nThread Number of threads to use. By default use 1 thread per virtual core on machine.
+#' @return List where names are peptide sequences, and values are the ids for the matching proteins.
+#' 
+#' @examples
+#' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
+#' matchingProteins(c('PEPTIDE'), progressBar = FALSE, fastaPath = fasta_path)
+#' 
+matchingProteins <- function(peptides, fastaPath = "", progressBar = TRUE, nThread = 0L) {
+    .Call(`_RPeptideUtils_matchingProteins`, peptides, fastaPath, progressBar, nThread)
 }
 
 #' Space a list of sequence indecies into y levels for a sequence coverage plot.

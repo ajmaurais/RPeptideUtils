@@ -226,17 +226,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// matchingIds
-Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath, bool progressBar, size_t n_thread);
-RcppExport SEXP _RPeptideUtils_matchingIds(SEXP peptidesSEXP, SEXP fastaPathSEXP, SEXP progressBarSEXP, SEXP n_threadSEXP) {
+// matchingProteins
+Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPath, bool progressBar, size_t nThread);
+RcppExport SEXP _RPeptideUtils_matchingProteins(SEXP peptidesSEXP, SEXP fastaPathSEXP, SEXP progressBarSEXP, SEXP nThreadSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type peptides(peptidesSEXP);
     Rcpp::traits::input_parameter< std::string >::type fastaPath(fastaPathSEXP);
     Rcpp::traits::input_parameter< bool >::type progressBar(progressBarSEXP);
-    Rcpp::traits::input_parameter< size_t >::type n_thread(n_threadSEXP);
-    rcpp_result_gen = Rcpp::wrap(matchingIds(peptides, fastaPath, progressBar, n_thread));
+    Rcpp::traits::input_parameter< size_t >::type nThread(nThreadSEXP);
+    rcpp_result_gen = Rcpp::wrap(matchingProteins(peptides, fastaPath, progressBar, nThread));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -270,7 +270,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RPeptideUtils_fastaInfo", (DL_FUNC) &_RPeptideUtils_fastaInfo, 1},
     {"_RPeptideUtils_transpose_sequence", (DL_FUNC) &_RPeptideUtils_transpose_sequence, 3},
     {"_RPeptideUtils_digest", (DL_FUNC) &_RPeptideUtils_digest, 12},
-    {"_RPeptideUtils_matchingIds", (DL_FUNC) &_RPeptideUtils_matchingIds, 4},
+    {"_RPeptideUtils_matchingProteins", (DL_FUNC) &_RPeptideUtils_matchingProteins, 4},
     {"_RPeptideUtils_spaceCoveragePlot", (DL_FUNC) &_RPeptideUtils_spaceCoveragePlot, 2},
     {NULL, NULL, 0}
 };

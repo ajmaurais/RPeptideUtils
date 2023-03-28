@@ -591,7 +591,7 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
     return ret;
 }
 
-void matchingIdsWorker(const std::map<std::string, std::string>& proteins,
+void matchingProteinsWorker(const std::map<std::string, std::string>& proteins,
                        std::map<std::string, std::vector<std::string>  >& matchesIds,
                        std::atomic<size_t>& peptideIndex) {
     for(auto peptide: matchesIds) {
@@ -631,9 +631,22 @@ void progressBarWorker(std::atomic<size_t>& index, size_t count,
     Rcpp::Rcout << "Done!\n";
 }
 
+//' Given a vector of peptide sequences, find all the proteins containing the peptied in a fasta file.
+//' 
+//' @title Find all proteins containing peptide sequences.
+//' @param peptides A character vector of peptide sequences.
+//' @param fastaPath path to fasta formated file to look up protein sequences. 
+//' @param progressBar Show progress bar?
+//' @param nThread Number of threads to use. By default use 1 thread per virtual core on machine.
+//' @return List where names are peptide sequences, and values are the ids for the matching proteins.
+//' 
+//' @examples
+//' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
+//' matchingProteins(c('PEPTIDE'), progressBar = FALSE, fastaPath = fasta_path)
+//' 
 // [[Rcpp::export]]
-Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "",
-                       bool progressBar = true, size_t n_thread = 0)
+Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPath = "",
+                       bool progressBar = true, size_t nThread = 0)
 {
     // convert peptid seq char*(s) to std::string
     size_t len = peptides.size();
@@ -657,22 +670,22 @@ Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "
     if(progressBar) Rcpp::Rcout << " Done!\n";
 
     // split up input to fit worker threads
-    if(n_thread == 0)
-        n_thread = std::min(size_t(std::thread::hardware_concurrency()), len);
-    size_t peptides_per_thread = len / n_thread;
-    if(len % n_thread != 0) peptides_per_thread += 1;
+    if(nThread == 0)
+        nThread = std::min(size_t(std::thread::hardware_concurrency()), len);
+    size_t peptides_per_thread = len / nThread;
+    if(len % nThread != 0) peptides_per_thread += 1;
 
     // init threads
     std::vector<std::thread> threads;
     std::atomic<size_t> peptideIndex(0);
     if(progressBar) {
         std::string message = "Searching matching protein sequences for " + std::to_string(len) +
-                              " peptides using " + std::to_string(n_thread) + " threads...";
+                              " peptides using " + std::to_string(nThread) + " threads...";
         threads.emplace_back(progressBarWorker, std::ref(peptideIndex),
                              len, message, 1);
     }
 
-    auto* splitPeptides = new std::map<std::string, std::vector<std::string> >[n_thread];
+    auto* splitPeptides = new std::map<std::string, std::vector<std::string> >[nThread];
     size_t begin, end;
     size_t threadIndex = 0;
     for(size_t i = 0; i < len; i += peptides_per_thread) {
@@ -682,7 +695,7 @@ Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "
         for(size_t j = begin; j < end; j++){
             splitPeptides[threadIndex][peptides_s.at(j)] = std::vector<std::string> ();
         }
-        threads.emplace_back(matchingIdsWorker, std::ref(sequences),
+        threads.emplace_back(matchingProteinsWorker, std::ref(sequences),
                              std::ref(splitPeptides[threadIndex]),
                              std::ref(peptideIndex));
         threadIndex++;
@@ -693,7 +706,7 @@ Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "
     }
 
     Rcpp::List ret;
-    for(size_t i = 0; i < n_thread; i++) {
+    for(size_t i = 0; i < nThread; i++) {
         for(auto it = splitPeptides[i].begin(); it != splitPeptides[i].end(); ++it) {
             ret.push_back(it->second, it->first);
         }
