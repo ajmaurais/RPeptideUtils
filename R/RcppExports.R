@@ -246,3 +246,17 @@ matchingIds <- function(peptides, fastaPath = "", progressBar = TRUE, n_thread =
     .Call(`_RPeptideUtils_matchingIds`, peptides, fastaPath, progressBar, n_thread)
 }
 
+#' Space a list of sequence indecies into y levels for a sequence coverage plot.
+#' 
+#' @title Space a list of sequence indecies for a coverage plot.
+#' @param begin_i IngegerVector of begining indices.
+#' @param end_i IngegerVector of ending indices.
+#' @return IngegerVector of y levels for each sequence.
+#' 
+#' @examples
+#' spaceCoveragePlot(c(1, 5, 30, 50), c(20, 20, 48, 60))
+#'
+spaceCoveragePlot <- function(begin_i, end_i) {
+    .Call(`_RPeptideUtils_spaceCoveragePlot`, begin_i, end_i)
+}
+

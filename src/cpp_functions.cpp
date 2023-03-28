@@ -593,20 +593,15 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
 
 void matchingIdsWorker(const std::map<std::string, std::string>& proteins,
                        std::map<std::string, std::vector<std::string>  >& matchesIds,
-                       std::atomic<size_t>& searchIndex) {
-    
+                       std::atomic<size_t>& peptideIndex) {
     for(auto peptide: matchesIds) {
-        Rcpp::Rcout << peptide.first << '\n';
         for(auto prot: proteins) {
             if(prot.second.find(peptide.first) != std::string::npos) {
                 matchesIds[peptide.first].push_back(prot.first);
             }
-            searchIndex++;
         }
-        Rcpp::Rcout << peptide.first << "done \n";
+        peptideIndex++;
     }
-
-    Rcpp::Rcout << "Thread is done \n";
 }
 
 void progressBarWorker(std::atomic<size_t>& index, size_t count,
@@ -620,20 +615,18 @@ void progressBarWorker(std::atomic<size_t>& index, size_t count,
     while(index < count) {
         curIndex = index.load();
 
-        Rcpp::Rcout << "Current index is: " << curIndex << '\n';
-        
         if(lastIndex == curIndex) noChangeIterations++;
         else noChangeIterations = 0;
 
         if(noChangeIterations > 5)
             throw std::runtime_error("Thread timeout!");
 
-		utils::printProgress(float(curIndex) / float(count));
-		std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
+        utils::printProgress(float(curIndex) / float(count));
+        std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
 
         lastIndex = curIndex;
     }
-	utils::printProgress(float(index.load()) / float(count));
+    utils::printProgress(float(index.load()) / float(count));
     Rcpp::Rcout << NEW_LINE;
     Rcpp::Rcout << "Done!\n";
 }
@@ -652,6 +645,7 @@ Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "
     // read fasta file
     std::string _fastaPath = fastaPath.empty() ?
         _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
+
     utils::FastaFile fasta(true, _fastaPath);
     if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
     if(progressBar) Rcpp::Rcout << "Reading fasta file..." << std::flush;
@@ -665,62 +659,47 @@ Rcpp::List matchingIds(Rcpp::CharacterVector peptides, std::string fastaPath = "
     // split up input to fit worker threads
     if(n_thread == 0)
         n_thread = std::min(size_t(std::thread::hardware_concurrency()), len);
-    size_t const n_searches = len * n_seq;
     size_t peptides_per_thread = len / n_thread;
     if(len % n_thread != 0) peptides_per_thread += 1;
-    Rcpp::Rcout << "Done calculating n_thread.\n\tn_thread is: " << n_thread <<
-        "\n\t" << peptides_per_thread << " peptides per thread.\n";
 
     // init threads
     std::vector<std::thread> threads;
-    std::vector<std::map<std::string, std::vector<std::string> > > splitPeptides;
+    std::atomic<size_t> peptideIndex(0);
+    if(progressBar) {
+        std::string message = "Searching matching protein sequences for " + std::to_string(len) +
+                              " peptides using " + std::to_string(n_thread) + " threads...";
+        threads.emplace_back(progressBarWorker, std::ref(peptideIndex),
+                             len, message, 1);
+    }
+
+    auto* splitPeptides = new std::map<std::string, std::vector<std::string> >[n_thread];
     size_t begin, end;
     size_t threadIndex = 0;
-    std::atomic<size_t> searchIndex(0);
     for(size_t i = 0; i < len; i += peptides_per_thread) {
-        Rcpp::Rcout << "Init thread " << i << '\n';
         begin = i;
-        end = (begin + peptides_per_thread > n_searches ? n_searches : begin + peptides_per_thread);
-        splitPeptides.push_back(std::map<std::string, std::vector<std::string> >());
-        Rcpp::Rcout << "begin: " << begin << " end " << end << "\n";
+        end = (begin + peptides_per_thread > len ? len : begin + peptides_per_thread);
 
-        Rcpp::Rcout << "Init splitPeptides\n";
-        Rcpp::Rcout << "splitPeptides length " << splitPeptides.size() << '\n';
         for(size_t j = begin; j < end; j++){
             splitPeptides[threadIndex][peptides_s.at(j)] = std::vector<std::string> ();
         }
-        Rcpp::Rcout << "Starting thread\n";
-
         threads.emplace_back(matchingIdsWorker, std::ref(sequences),
                              std::ref(splitPeptides[threadIndex]),
-                             std::ref(searchIndex));
+                             std::ref(peptideIndex));
         threadIndex++;
     }
 
-    if(progressBar) {
-        Rcpp::Rcout << "Starting progress bar\n";
-        std::string message = "There are " + std::to_string(n_searches) +
-            "searches to perform...\nSearching protein sequences for peptides using " +
-            std::to_string(n_thread) + " threads...";
-        threads.emplace_back(progressBarWorker, std::ref(searchIndex),
-                             n_searches, message, 1);
-    }
-
-    Rcpp::Rcout << "Joining threads...\n";
     for(auto& t : threads) {
         t.join();
-        Rcpp::Rcout << "Joined thread...\n";
     }
-    
-    Rcpp::Rcout << "Init ret\n";
+
     Rcpp::List ret;
     for(size_t i = 0; i < n_thread; i++) {
-        for(auto peptide : splitPeptides[i]) {
-            ret.push_back(peptide.second, peptide.first);
+        for(auto it = splitPeptides[i].begin(); it != splitPeptides[i].end(); ++it) {
+            ret.push_back(it->second, it->first);
         }
     }
-    
-    Rcpp::Rcout << "Exit\n";
+
+    delete [] splitPeptides;
     return ret;
 }
 
