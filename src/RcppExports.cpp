@@ -240,6 +240,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// smallestDifferentStrings
+Rcpp::CharacterVector smallestDifferentStrings(Rcpp::CharacterVector cStrings, bool verbose);
+RcppExport SEXP _RPeptideUtils_smallestDifferentStrings(SEXP cStringsSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type cStrings(cStringsSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(smallestDifferentStrings(cStrings, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RPeptideUtils_getFragmentIonIndices", (DL_FUNC) &_RPeptideUtils_getFragmentIonIndices, 1},
@@ -259,6 +271,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RPeptideUtils_transpose_sequence", (DL_FUNC) &_RPeptideUtils_transpose_sequence, 3},
     {"_RPeptideUtils_digest", (DL_FUNC) &_RPeptideUtils_digest, 12},
     {"_RPeptideUtils_matchingProteins", (DL_FUNC) &_RPeptideUtils_matchingProteins, 4},
+    {"_RPeptideUtils_smallestDifferentStrings", (DL_FUNC) &_RPeptideUtils_smallestDifferentStrings, 2},
     {NULL, NULL, 0}
 };
 

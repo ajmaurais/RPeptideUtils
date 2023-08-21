@@ -259,3 +259,16 @@ matchingProteins <- function(peptides, fastaPath = "", progressBar = TRUE, nThre
     .Call(`_RPeptideUtils_matchingProteins`, peptides, fastaPath, progressBar, nThread)
 }
 
+#' @title Remove the substring which is shared by the begining and end of all strings in a CharacterVector.
+#' @param cStrings The CharacterVector.
+#' @param verbose Print verbose output?
+#' @return CharacterVector with common begining and ending removed.
+#' 
+#' @examples
+#' smallestDifferentStrings(c('SHARED_START_first_SHARED_END',
+#'                            'SHARED_START_second_SHARED_END'))
+#' 
+smallestDifferentStrings <- function(cStrings, verbose = TRUE) {
+    .Call(`_RPeptideUtils_smallestDifferentStrings`, cStrings, verbose)
+}
+
