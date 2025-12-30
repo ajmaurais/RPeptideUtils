@@ -8,6 +8,7 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <regex>
 
 #include <fastaFile.hpp>
 #include <molecularFormula.hpp>
@@ -792,6 +793,34 @@ Rcpp::CharacterVector smallestDifferentStrings(Rcpp::CharacterVector cStrings,
 
     Rcpp::CharacterVector ret;
     for(auto s: strings) ret.push_back(s.c_str());
+
+    return ret;
+}
+
+//' Count the number of missed protease cleavages in peptide sequences.
+//'
+//' @title Count missed protease cleavages
+//' @param sequences CharacterVector of peptide sequences.
+//' @param cleavagePattern Regex pattern for protease cleavage sites. The default is the pattern for trypsin.
+//' @return IntegerVector of missed cleavage counts.
+//'
+//' @examples
+//' nMissed(c("PEPTIDER", "PEPKTIDER", "PEPKTIDERKK"))
+//'
+// [[Rcpp::export]]
+Rcpp::IntegerVector nMissed(const Rcpp::CharacterVector& sequences,
+                            std::string cleavagePattern = "([RK])(?=[^P])")
+{
+    std::regex pattern(cleavagePattern);
+    size_t len = sequences.size();
+    Rcpp::IntegerVector ret(len);
+
+    for(size_t i = 0; i < len; i++) {
+        std::string seq = std::string(sequences[i]);
+        auto begin = std::sregex_iterator(seq.begin(), seq.end(), pattern);
+        auto end = std::sregex_iterator();
+        ret[i] = std::distance(begin, end);
+    }
 
     return ret;
 }

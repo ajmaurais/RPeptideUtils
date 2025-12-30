@@ -252,6 +252,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// nMissed
+Rcpp::IntegerVector nMissed(const Rcpp::CharacterVector& sequences, std::string cleavagePattern);
+RcppExport SEXP _RPeptideUtils_nMissed(SEXP sequencesSEXP, SEXP cleavagePatternSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::CharacterVector& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type cleavagePattern(cleavagePatternSEXP);
+    rcpp_result_gen = Rcpp::wrap(nMissed(sequences, cleavagePattern));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RPeptideUtils_getFragmentIonIndices", (DL_FUNC) &_RPeptideUtils_getFragmentIonIndices, 1},
@@ -272,6 +284,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RPeptideUtils_digest", (DL_FUNC) &_RPeptideUtils_digest, 12},
     {"_RPeptideUtils_matchingProteins", (DL_FUNC) &_RPeptideUtils_matchingProteins, 4},
     {"_RPeptideUtils_smallestDifferentStrings", (DL_FUNC) &_RPeptideUtils_smallestDifferentStrings, 2},
+    {"_RPeptideUtils_nMissed", (DL_FUNC) &_RPeptideUtils_nMissed, 2},
     {NULL, NULL, 0}
 };
 

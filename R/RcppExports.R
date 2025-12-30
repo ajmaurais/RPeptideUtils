@@ -272,3 +272,17 @@ smallestDifferentStrings <- function(cStrings, verbose = TRUE) {
     .Call(`_RPeptideUtils_smallestDifferentStrings`, cStrings, verbose)
 }
 
+#' Count the number of missed protease cleavages in peptide sequences.
+#'
+#' @title Count missed protease cleavages
+#' @param sequences CharacterVector of peptide sequences.
+#' @param cleavagePattern Regex pattern for protease cleavage sites. The default is the pattern for trypsin.
+#' @return IntegerVector of missed cleavage counts.
+#'
+#' @examples
+#' nMissed(c("PEPTIDER", "PEPKTIDER", "PEPKTIDERKK"))
+#'
+nMissed <- function(sequences, cleavagePattern = "([RK])(?=[^P])") {
+    .Call(`_RPeptideUtils_nMissed`, sequences, cleavagePattern)
+}
+
