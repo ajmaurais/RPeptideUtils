@@ -401,7 +401,7 @@ Rcpp::StringVector threeLetterToOne(Rcpp::StringVector sequences,
 //' Read all sequences in fasta file. Reverse matches are automatically skipped.
 //'
 //' @title Read fasta file.
-//' 
+//'
 //' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
 //' @param n_entries Number of entries to read. If 0, all entries are read.
 //' @return DataFrame with columns for ID and sequence.
@@ -416,17 +416,19 @@ Rcpp::DataFrame readFasta(std::string fastaPath = "", long n_entries = 0)
     utils::FastaFile fasta(true, _fastaPath);
         if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
-    Rcpp::CharacterVector ids, seqs;
-    
-    size_t len = fasta.getSequenceCount();
-    if(n_entries > len)
+    size_t totalEntries = fasta.getSequenceCount();
+    if(n_entries < 0 || static_cast<size_t>(n_entries) > totalEntries)
         throw std::runtime_error("n_entries more than the number of entries in file!");
-    len = n_entries == 0 ? len : n_entries;
+    size_t len = n_entries == 0 ? totalEntries : static_cast<size_t>(n_entries);
+
+    // Pre-allocate vectors to avoid repeated reallocations
+    Rcpp::CharacterVector ids(len);
+    Rcpp::CharacterVector seqs(len);
 
     for(size_t i = 0; i < len; i++)
     {
-        ids.push_back(fasta.getIndexID(i).c_str());
-        seqs.push_back(fasta.at(i));
+        ids[i] = fasta.getIndexID(i);
+        seqs[i] = fasta.at(i);
     }
 
     return Rcpp::DataFrame::create(Rcpp::Named("id") = ids,
