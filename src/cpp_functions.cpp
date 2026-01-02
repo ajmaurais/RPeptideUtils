@@ -543,55 +543,55 @@ Rcpp::List digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
                   int minCharge = 1, int maxCharge = 5,
                   size_t minLen = 6, size_t maxLen = 0)
 {
-    //get file paths for atom mass tables
-    std::string residueAtomsPath;
-    
-    if(mz_filter){
-         residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-    }
-
     //check args
     if(ids.size() != sequences.size())
         throw std::runtime_error("sequences and ids must be the same length!");
-    
+
     size_t _maxLen = maxLen == 0 ? std::string::npos : maxLen;
     Rcpp::List ret;
-    
     size_t len = sequences.size();
+
+    // Compile regex once outside the loop
+    std::regex re(cleavagePattern);
+
+    // Initialize Residues once outside the loop (only if mz_filter is true)
+    utils::Residues residues;
+    if(mz_filter) {
+        std::string residueAtomsPath = residueAtoms.empty() ?
+            _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+        residues = utils::Residues(residueAtomsPath);
+        if(!residues.initialize(false))
+            throw std::runtime_error("Error reading required files for calcMass!");
+    }
+
     for(size_t i = 0; i < len; i++)
     {
         std::vector<std::string> peptides_temp;
         Rcpp::CharacterVector ret_temp;
+        std::string seq = utils::removeWhitespace(std::string(sequences[i]));
+
         if(mz_filter)
         {
-            //init residues
-            utils::Residues residues(residueAtomsPath);
-            if(!residues.initialize(false))
-                throw std::runtime_error("Error reading required files for calcMass!");
-            
-            residues.digest(utils::removeWhitespace(std::string(sequences[i])),
-                            peptides_temp, nMissedCleavages, false, cleavagePattern,
+            residues.digest(seq, peptides_temp, nMissedCleavages, false, re,
                             minMz, maxMz, minCharge, maxCharge);
-            
+
             std::sort(peptides_temp.begin(), peptides_temp.end(), utils::strLenCompare());
-            for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it)
+            for(const auto& pep : peptides_temp)
             {
-                size_t len_temp = it->length();
-                if(len_temp >= minLen && (_maxLen == std::string::npos ? true : len_temp <= _maxLen))
-                    ret_temp.push_back(it->c_str());
+                size_t pep_len = pep.length();
+                if(pep_len >= minLen && (_maxLen == std::string::npos || pep_len <= _maxLen))
+                    ret_temp.push_back(pep.c_str());
             }
-            
-        }//end if mz_filter
-        else{
-            utils::digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp,
-                          nMissedCleavages, minLen, _maxLen, cleavagePattern);
-            for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it){
-                ret_temp.push_back(it->c_str());
+        }
+        else {
+            utils::digest(seq, peptides_temp, nMissedCleavages, minLen, _maxLen, re);
+            for(const auto& pep : peptides_temp) {
+                ret_temp.push_back(pep.c_str());
             }
         }
         ret.push_back(ret_temp, std::string(ids[i]));
     }
-    
+
     return ret;
 }
 
