@@ -6,7 +6,7 @@
 #' @return TRUE is successful
 #' @export
 write_atomCountTable <- function(path = getwd(), overwrite = F){
-  base::file.copy(system.file('defaultResidueAtoms.txt', package = 'peptideUtils', mustWork = T),
+  base::file.copy(system.file('defaultResidueAtoms.txt', package = 'RPeptideUtils', mustWork = T),
                   to = path,
                   overwrite = overwrite,
                   recursive = F)
@@ -27,7 +27,7 @@ write_atomCountTable <- function(path = getwd(), overwrite = F){
 read_ids <- function(
   fname = system.file(
     'extdata/Human_uniprot-reviewed_20171020.fasta',
-    package = 'peptideUtils', mustWork = T
+    package = 'RPeptideUtils', mustWork = T
   ),
   id_line_regex = '^>(sp|tr)',
   capture_regex = '^>[sptr]{2}\\|(\\w+)\\|(\\w+)_\\w+',
