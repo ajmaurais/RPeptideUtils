@@ -1,6 +1,5 @@
 
-PKG_CPPFLAGS += -I../peptideUtils/include
+PKG_CPPFLAGS += -I../peptideUtils/include -DENABLE_ZLIB
 PKG_CXXFLAGS = -fPIC -c -g -Wall -std=c++11
+
 PKG_LIBS += -lz ../peptideUtils/lib/libpeptideUtils.a
-
-

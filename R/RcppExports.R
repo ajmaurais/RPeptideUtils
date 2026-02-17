@@ -2,7 +2,7 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' Get indices of fragment ions for peptide sequence.
-#' 
+#'
 #' @title Get fragment ion sequence indices.
 #' @param seq Peptide sequence as a string.
 #' @return fragments IntegerMatrix where each row is a fragment ion. The first column is the startig index of the fragment ion in the peptide sequence and the second column is the fragment length.
@@ -11,7 +11,7 @@ getFragmentIonIndices <- function(seq) {
 }
 
 #' Get sequences of fragment ions for peptide sequence.
-#' 
+#'
 #' @title Get fragment ion sequences.
 #' @param seq Peptide sequence as a string.
 #' @return fragments Named CharacterVector where the names are the ions and the values are the sequences.
@@ -20,32 +20,32 @@ getFragmentIonSequences <- function(seq) {
 }
 
 #' Get protein sequences for a vector of uniprot IDs
-#' 
+#'
 #' @title Get protein IDs in fasta file for a vector of Uniprot IDs
 #' @param ids CharacterVector of uniprot IDs
-#' @param fastaPath path to fasta formatted file to look up protein sequences. 
+#' @param fastaPath path to fasta formatted file to look up protein sequences.
 #' @return CharacterVector of protein sequences in same order as ids.
-#' 
+#'
 #' @examples
 #' #By default the fasta file included in the package containing human protein sequences is used.
 #' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"))
-#' 
+#'
 #' #A fasta file can also be manually specified.
 #' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
 #' getSequences(c("A0MZ66", "A6NMY6", "O00213", "O00213"), fasta_path)
-#' 
+#'
 getSequences <- function(ids, fastaPath = "") {
     .Call(`_RPeptideUtils_getSequences`, ids, fastaPath)
 }
 
 #' Get n residues before query in ref. If n overruns ref, the maximum number of characters will be returned.
-#' 
+#'
 #' @title get n residues before query.
 #' @param query String to search for.
 #' @param ref String to search in.
 #' @param n Number of residues in output.
 #' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
-#' 
+#'
 #' @return n residues before query.
 #'
 nBefore <- function(query, ref, n, noExcept = FALSE) {
@@ -53,13 +53,13 @@ nBefore <- function(query, ref, n, noExcept = FALSE) {
 }
 
 #' Get n residues after query in ref. If n overruns ref, the maximum number of characters will be returned.
-#' 
+#'
 #' @title get n residues after query.
 #' @param query String to search for.
 #' @param ref String to search in.
 #' @param n Number of residues in output.
 #' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
-#' 
+#'
 #' @return n residues after query.
 #'
 nAfter <- function(query, ref, n, noExcept = FALSE) {
@@ -67,13 +67,13 @@ nAfter <- function(query, ref, n, noExcept = FALSE) {
 }
 
 #' Get the index of residue n of query in ref. If n is -1, the index of the last residue in query is returned.
-#' 
+#'
 #' @title get the index of nth residues of query in ref.
 #' @param query String to search for.
 #' @param ref String to search in.
 #' @param n Residue number in query.
 #' @param noExcept Should an std::runtime_error be thrown if query is not in ref?
-#' 
+#'
 #' @return n residues after query.
 #'
 indexN <- function(query, ref, n = 1L, noExcept = FALSE) {
@@ -91,31 +91,31 @@ indexN <- function(query, ref, n = 1L, noExcept = FALSE) {
 #'
 #' @examples
 #' getModifiedResidues(c("Q00839", "Q9HCS7", "Q7L014"), c("APQC*LGK", "FADMEC*K", "GAEIIVC*TPGR"))
-#' 
+#'
 getModifiedResidues <- function(ids, peptideSeq, fastaPath = "", modSep = "|") {
     .Call(`_RPeptideUtils_getModifiedResidues`, ids, peptideSeq, fastaPath, modSep)
 }
 
 #' Combine concated mods from multiple peptides into a single string.
-#' 
+#'
 #' @title Combine mods from multiple peptides into a single string
 #' @param mods Modifications to combine
 #' @param sep delimiter separating modifications
 #' @return Modifications combined into a single string
-#' 
+#'
 #' @examples
 #' combineMods(c('C157', 'C157|C125', 'C50', 'C125'))
-#' 
+#'
 combineMods <- function(mods, sep = '|') {
     .Call(`_RPeptideUtils_combineMods`, mods, sep)
 }
 
 #' Calculate peptide monoisotopic or average masses.
-#' 
+#'
 #' @title Calculate peptide masses
 #' @param sequences Peptide sequences
 #' @param monoMass Should monoisotopic mass be calculated. If false, average mass is calculated.
-#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
+#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used.
 #' @return vector of peptide masses.
 #'
 #' @examples
@@ -126,11 +126,11 @@ calcMass <- function(sequences, monoMass = TRUE, residueAtoms = "") {
 }
 
 #' Calculate peptide molecular formulas
-#' 
+#'
 #' @title Calculate peptide formulas
 #' @param sequences Peptide sequences
 #' @param subscripts Should formulas have subscripts or normal baseline numbers?
-#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
+#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used.
 #' @return vector of peptide formulas.
 #'
 #' @examples
@@ -141,7 +141,7 @@ calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
 }
 
 #' Convert from 1 letter amino acid codes to 3
-#' 
+#'
 #' @title Convert to 3 letter amino acid codes
 #' @param sequences vector of sequences
 #' @param sep_in deliminator between amino acids in input
@@ -149,16 +149,16 @@ calcFormula <- function(sequences, subscripts = FALSE, residueAtoms = "") {
 #' @param n_term_out string to append to n terminus
 #' @param c_term_out string to append to c terminus
 #' @return StringVector of peptides with three letter amino acid codes
-#' 
+#'
 #' @examples
 #' oneLetterToThree(c("AC*LLPETVNMEEYPYDAEY", "ALCAEFK", "AQUPIVER", "C*TGGEVGATSALAPK"))
-#' 
+#'
 oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
     .Call(`_RPeptideUtils_oneLetterToThree`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
 
 #' Convert from 3 letter amino acid codes to 1
-#' 
+#'
 #' @title Convert to 1 letter amino acid codes
 #' @param sequences vector of sequences
 #' @param sep_in deliminator between amino acids in input
@@ -166,10 +166,10 @@ oneLetterToThree <- function(sequences, sep_in = "", sep_out = "", n_term_out = 
 #' @param n_term_out string to append to n terminus
 #' @param c_term_out string to append to c terminus
 #' @return StringVector of peptides with one letter amino acid codes
-#' 
+#'
 #' @examples
 #' threeLetterToOne(c("Ala-Cys*-Leu-Leu-Pro", "Ala-Leu-Cys-Ala", "Ala-Gln-Sec-Ile"), sep_in = "-")
-#' 
+#'
 threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = "", c_term_out = "") {
     .Call(`_RPeptideUtils_threeLetterToOne`, sequences, sep_in, sep_out, n_term_out, c_term_out)
 }
@@ -177,7 +177,7 @@ threeLetterToOne <- function(sequences, sep_in = "", sep_out = "", n_term_out = 
 #' Read all sequences in fasta file. Reverse matches are automatically skipped.
 #'
 #' @title Read fasta file.
-#' 
+#'
 #' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
 #' @param n_entries Number of entries to read. If 0, all entries are read.
 #' @return DataFrame with columns for ID and sequence.
@@ -187,12 +187,12 @@ readFasta <- function(fastaPath = "", n_entries = 0L) {
 }
 
 #' Get metadata about a fasta file.
-#' 
+#'
 #' @title Get fasta file info.
-#' 
+#'
 #' @param fastaPath Path to fasta file. Be default, fasta file included in package is used.
 #' @return List with slots for sequence count and vector of entry IDs contained in file.
-#' 
+#'
 fastaInfo <- function(fastaPath = "") {
     .Call(`_RPeptideUtils_fastaInfo`, fastaPath)
 }
@@ -201,9 +201,9 @@ fastaInfo <- function(fastaPath = "") {
 #' quantifications. A row will be included in the output for each time an amino acid
 #' at a given position was included in a peptide in peptide_sequences. Additional processing
 #' is required to obtain summary values for each amino acid position.
-#' 
+#'
 #' @title Transpose peptide quantifications into amino acid level quantifications.
-#' 
+#'
 #' @param peptide_sequences List of peptide sequences.
 #' @param quantification Ratio or spectral count values for peptide_sequences.
 #' @param protein_seq Parent protein sequence.
@@ -217,24 +217,24 @@ transpose_sequence <- function(peptide_sequences, quantification, protein_seq) {
 #' observable by MS. The m/z for peptides in charge states minCharge to maxCharge
 #' are calculated. If the m/z for any charge state is in between minMZ and maxMZ, the
 #' sequence will be appended to peptides.
-#' 
+#'
 #' @title Perform a virtual protease digest of a protein.
-#' 
+#'
 #' @param sequences StringVector containing protein sequences. Whitespace will automatically be removed.
 #' @param ids Names for the slot for each protein's peptides in output.
 #' @param nMissedCleavages number of missed cleavages to allow.
 #' @param cleavagePattern RegEx for protease cleavage pattern. The default is the pattern for trypsin.
 #' @param mz_filter Should peptides included in output be filtered by mz?
-#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used. 
+#' @param residueAtoms Path to residueAtoms file. If blank, the default file included in the package is used.
 #' @param minMz Minimum m/z to allow in peptides.
 #' @param maxMz Maximum m/z to allow in peptides. Set to 0 for no upper bound on m/z.
 #' @param minCharge Minimum charge to consider when calculating m/z.
 #' @param maxCharge Maximum charge to consider when calculating m/z.
 #' @param minLen Minimum peptide length.
 #' @param maxLen Maximum peptide length. Set to 0 for no upper bound on length.
-#' 
+#'
 #' @return A list with named elements containing vectors of each input protein's peptides.
-#' 
+#'
 #' @examples
 #' digest(c("KLGAARKLGAGLAKVIGAGIGIGK", "KLGAARKLGAGLAKPVIGAGIGIGK"), c('a', 'b'))
 #'
@@ -243,31 +243,50 @@ digest <- function(sequences, ids, nMissedCleavages = 0L, cleavagePattern = "([R
 }
 
 #' Given a vector of peptide sequences, find all the proteins containing the peptide in a fasta file.
-#' 
+#'
 #' @title Find all proteins containing peptide sequences.
 #' @param peptides A character vector of peptide sequences.
-#' @param fastaPath path to fasta formatted file to look up protein sequences. 
+#' @param fastaPath path to fasta formatted file to look up protein sequences.
 #' @param progressBar Show progress bar?
 #' @param nThread Number of threads to use. By default use 1 thread per virtual core on machine.
 #' @return List where names are peptide sequences, and values are the ids for the matching proteins.
-#' 
+#'
 #' @examples
 #' fasta_path <- system.file('extdata/Human_uniprot-reviewed_20171020.fasta', package = 'RPeptideUtils')
 #' matchingProteins(c('PEPTIDE'), progressBar = FALSE, fastaPath = fasta_path)
-#' 
+#'
 matchingProteins <- function(peptides, fastaPath = "", progressBar = TRUE, nThread = 0L) {
     .Call(`_RPeptideUtils_matchingProteins`, peptides, fastaPath, progressBar, nThread)
+}
+
+#' Read scan metadata from mzML files.
+#'
+#' @title Read MS scan metadata from mzML files.
+#' @param scans IntegerVector of scan numbers.
+#' @param files CharacterVector of file paths to mzML files. Must be the same length as scans.
+#' @param progressBar Show progress bar?
+#' @param nThread Number of threads to use. By default use 1 thread per virtual core on machine.
+#' @return DataFrame with columns for scan, file, path, rt, ms_level,
+#'   precursor_mz, isolation_window_lower_offset, and isolation_window_upper_offset.
+#'
+#' @examples
+#' mzml_path <- system.file('extdata/20240927_STEL1_Evo3_MW_15N_MS3_dilution_12_1.mzML',
+#'                           package = 'RPeptideUtils')
+#' getMSScanMetadata(c(1L, 2L, 3L), rep(mzml_path, 3), progressBar = FALSE)
+#'
+getMSScanMetadata <- function(scans, files, progressBar = TRUE, nThread = 0L) {
+    .Call(`_RPeptideUtils_getMSScanMetadata`, scans, files, progressBar, nThread)
 }
 
 #' @title Remove the substring which is shared by the begining and end of all strings in a CharacterVector.
 #' @param cStrings The CharacterVector.
 #' @param verbose Print verbose output?
 #' @return CharacterVector with common begining and ending removed.
-#' 
+#'
 #' @examples
 #' smallestDifferentStrings(c('SHARED_START_first_SHARED_END',
 #'                            'SHARED_START_second_SHARED_END'))
-#' 
+#'
 smallestDifferentStrings <- function(cStrings, verbose = TRUE) {
     .Call(`_RPeptideUtils_smallestDifferentStrings`, cStrings, verbose)
 }

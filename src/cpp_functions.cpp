@@ -10,10 +10,15 @@
 #include <chrono>
 #include <regex>
 
+#include <cmath>
+#include <fstream>
+#include <sstream>
+
 #include <fastaFile.hpp>
 #include <molecularFormula.hpp>
 #include <sequenceUtils.hpp>
 #include <utils.hpp>
+#include <msInterface/mzMLFile.hpp>
 
 //!Return data files included in an R package
 std::string _getPackageData(std::string filename, std::string packageName = "RPeptideUtils")
@@ -728,6 +733,266 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
 
     delete [] splitPeptides;
     return ret;
+}
+
+struct ScanResult {
+    size_t originalIndex;
+    size_t scanNum;
+    std::string fileBasename;
+    std::string filePath;
+    double rt;
+    int msLevel;
+    double isoWinTarget;
+    double isoWinLower;
+    double isoWinUpper;
+};
+
+struct FileGroup {
+    std::string filePath;
+    std::vector<std::pair<size_t, size_t>> tasks; // (originalIndex, scanNum)
+};
+
+//! Extract a double value attribute from a cvParam XML string
+double _extractCvParamValue(const std::string& xml, const std::string& accession)
+{
+    size_t pos = xml.find(accession);
+    if(pos == std::string::npos) return std::numeric_limits<double>::quiet_NaN();
+    size_t valPos = xml.find("value=\"", pos);
+    if(valPos == std::string::npos) return std::numeric_limits<double>::quiet_NaN();
+    valPos += 7;
+    size_t valEnd = xml.find("\"", valPos);
+    if(valEnd == std::string::npos) return std::numeric_limits<double>::quiet_NaN();
+    return std::stod(xml.substr(valPos, valEnd - valPos));
+}
+
+//! Parse isolation windows from raw mzML file content.
+//! Returns a map from scan number to (targetMz, lowerOffset, upperOffset).
+std::map<size_t, std::tuple<double, double, double>>
+_parseIsolationWindows(const std::string& content)
+{
+    std::map<size_t, std::tuple<double, double, double>> result;
+    size_t pos = 0;
+
+    while((pos = content.find("<spectrum ", pos)) != std::string::npos) {
+        size_t endPos = content.find("</spectrum>", pos);
+        if(endPos == std::string::npos) break;
+
+        // Extract scan number from id="... scan=N ..."
+        size_t idPos = content.find("id=\"", pos);
+        if(idPos == std::string::npos || idPos > endPos) { pos = endPos; continue; }
+        size_t scanPos = content.find("scan=", idPos);
+        if(scanPos == std::string::npos || scanPos > endPos) { pos = endPos; continue; }
+        size_t numStart = scanPos + 5;
+        size_t numEnd = numStart;
+        while(numEnd < content.size() && std::isdigit(content[numEnd])) numEnd++;
+        if(numStart == numEnd) { pos = endPos; continue; }
+        size_t scanNum = std::stoul(content.substr(numStart, numEnd - numStart));
+
+        // Find isolationWindow within this spectrum
+        size_t isoPos = content.find("<isolationWindow>", pos);
+        if(isoPos != std::string::npos && isoPos < endPos) {
+            size_t isoEnd = content.find("</isolationWindow>", isoPos);
+            if(isoEnd != std::string::npos && isoEnd < endPos) {
+                std::string isoXml = content.substr(isoPos, isoEnd - isoPos);
+                double target = _extractCvParamValue(isoXml, "MS:1000827");
+                double lower = _extractCvParamValue(isoXml, "MS:1000828");
+                double upper = _extractCvParamValue(isoXml, "MS:1000829");
+                result[scanNum] = std::make_tuple(target, lower, upper);
+            }
+        }
+
+        pos = endPos;
+    }
+
+    return result;
+}
+
+void getMSScanMetadataWorker(
+    const std::vector<FileGroup>& fileGroups,
+    std::vector<ScanResult>& results,
+    std::atomic<size_t>& scanCounter)
+{
+    for(const auto& group : fileGroups) {
+        // Use MzMLFile to read and index the file
+        utils::msInterface::MzMLFile mzml(group.filePath);
+        if(!mzml.read())
+            throw std::runtime_error("Could not read file: " + group.filePath);
+
+        std::string basename = mzml.getParentFileBase();
+
+        // Parse isolation windows from raw file content
+        std::ifstream ifs(group.filePath);
+        std::string rawContent((std::istreambuf_iterator<char>(ifs)),
+                                std::istreambuf_iterator<char>());
+        auto isoWindows = _parseIsolationWindows(rawContent);
+
+        for(const auto& task : group.tasks) {
+            ScanResult result;
+            result.originalIndex = task.first;
+            result.scanNum = task.second;
+            result.filePath = group.filePath;
+            result.fileBasename = basename;
+            result.rt = NA_REAL;
+            result.msLevel = NA_INTEGER;
+            result.isoWinTarget = NA_REAL;
+            result.isoWinLower = NA_REAL;
+            result.isoWinUpper = NA_REAL;
+
+            utils::msInterface::Scan scan;
+            if(mzml.getScan(task.second, scan)) {
+                result.rt = scan.getPrecursor().getRT();
+                result.msLevel = scan.getLevel();
+            }
+
+            auto it = isoWindows.find(task.second);
+            if(it != isoWindows.end()) {
+                double target = std::get<0>(it->second);
+                double lower = std::get<1>(it->second);
+                double upper = std::get<2>(it->second);
+                result.isoWinTarget = std::isnan(target) ? NA_REAL : target;
+                result.isoWinLower = std::isnan(lower) ? NA_REAL : lower;
+                result.isoWinUpper = std::isnan(upper) ? NA_REAL : upper;
+            }
+
+            results.push_back(result);
+            scanCounter++;
+        }
+    }
+}
+
+//' Read scan metadata from mzML files.
+//'
+//' @title Read MS scan metadata from mzML files.
+//' @param scans IntegerVector of scan numbers.
+//' @param files CharacterVector of file paths to mzML files. Must be the same length as scans.
+//' @param progressBar Show progress bar?
+//' @param nThread Number of threads to use. By default use 1 thread per virtual core on machine.
+//' @return DataFrame with columns for scan, file, path, rt, ms_level,
+//'   precursor_mz, isolation_window_lower_offset, and isolation_window_upper_offset.
+//'
+//' @examples
+//' mzml_path <- system.file('extdata/20240927_STEL1_Evo3_MW_15N_MS3_dilution_12_1.mzML',
+//'                           package = 'RPeptideUtils')
+//' getMSScanMetadata(c(1L, 2L, 3L), rep(mzml_path, 3), progressBar = FALSE)
+//'
+// [[Rcpp::export]]
+Rcpp::DataFrame getMSScanMetadata(Rcpp::IntegerVector scans, Rcpp::CharacterVector files,
+                                   bool progressBar = true, size_t nThread = 0)
+{
+    size_t len = scans.size();
+    if(len != static_cast<size_t>(files.size()))
+        throw std::runtime_error("scans and files must be the same length!");
+
+    if(len == 0)
+        return Rcpp::DataFrame::create(
+            Rcpp::Named("scan") = Rcpp::IntegerVector(),
+            Rcpp::Named("file") = Rcpp::CharacterVector(),
+            Rcpp::Named("path") = Rcpp::CharacterVector(),
+            Rcpp::Named("rt") = Rcpp::NumericVector(),
+            Rcpp::Named("ms_level") = Rcpp::IntegerVector(),
+            Rcpp::Named("precursor_mz") = Rcpp::NumericVector(),
+            Rcpp::Named("isolation_window_lower_offset") = Rcpp::NumericVector(),
+            Rcpp::Named("isolation_window_upper_offset") = Rcpp::NumericVector(),
+            Rcpp::Named("stringsAsFactors") = false);
+
+    // Group scans by file, keeping track of original indices
+    std::map<std::string, std::vector<std::pair<size_t, size_t>>> fileGroupMap;
+    for(size_t i = 0; i < len; i++) {
+        fileGroupMap[std::string(files[i])].push_back({i, static_cast<size_t>(scans[i])});
+    }
+
+    // Convert to vector for splitting across threads
+    std::vector<FileGroup> groups;
+    for(auto& fg : fileGroupMap) {
+        FileGroup g;
+        g.filePath = fg.first;
+        g.tasks = fg.second;
+        groups.push_back(g);
+    }
+
+    size_t nFiles = groups.size();
+    if(nThread == 0)
+        nThread = std::min(size_t(std::thread::hardware_concurrency()), nFiles);
+    if(nThread > nFiles) nThread = nFiles;
+
+    size_t filesPerThread = nFiles / nThread;
+    if(nFiles % nThread != 0) filesPerThread++;
+
+    // Init threads
+    std::vector<std::thread> threads;
+    std::atomic<size_t> scanCounter(0);
+    if(progressBar) {
+        std::string message = "Reading scan metadata for " + std::to_string(len) +
+                              " scans from " + std::to_string(nFiles) +
+                              " files using " + std::to_string(nThread) + " threads...";
+        threads.emplace_back(progressBarWorker, std::ref(scanCounter),
+                             len, message, 1);
+    }
+
+    auto* threadGroups = new std::vector<FileGroup>[nThread];
+    auto* threadResults = new std::vector<ScanResult>[nThread];
+    for(size_t i = 0; i < nThread; i++) {
+        size_t begin = i * filesPerThread;
+        size_t end = std::min(begin + filesPerThread, nFiles);
+        for(size_t j = begin; j < end; j++) {
+            threadGroups[i].push_back(groups[j]);
+        }
+        threads.emplace_back(getMSScanMetadataWorker,
+                             std::ref(threadGroups[i]),
+                             std::ref(threadResults[i]),
+                             std::ref(scanCounter));
+    }
+
+    // Join threads
+    for(auto& t : threads) {
+        t.join();
+    }
+
+    // Combine results from all threads
+    std::vector<ScanResult> allResults;
+    for(size_t i = 0; i < nThread; i++) {
+        allResults.insert(allResults.end(), threadResults[i].begin(), threadResults[i].end());
+    }
+    delete[] threadGroups;
+    delete[] threadResults;
+
+    // Sort by original index to maintain input order
+    std::sort(allResults.begin(), allResults.end(),
+        [](const ScanResult& a, const ScanResult& b) {
+            return a.originalIndex < b.originalIndex;
+        });
+
+    // Build output DataFrame
+    Rcpp::IntegerVector outScans(len);
+    Rcpp::CharacterVector outFiles(len);
+    Rcpp::CharacterVector outPaths(len);
+    Rcpp::NumericVector outRTs(len);
+    Rcpp::IntegerVector outLevels(len);
+    Rcpp::NumericVector outTargets(len);
+    Rcpp::NumericVector outLowers(len);
+    Rcpp::NumericVector outUppers(len);
+
+    for(size_t i = 0; i < len; i++) {
+        outScans[i] = allResults[i].scanNum;
+        outFiles[i] = allResults[i].fileBasename;
+        outPaths[i] = allResults[i].filePath;
+        outRTs[i] = allResults[i].rt;
+        outLevels[i] = allResults[i].msLevel;
+        outTargets[i] = allResults[i].isoWinTarget;
+        outLowers[i] = allResults[i].isoWinLower;
+        outUppers[i] = allResults[i].isoWinUpper;
+    }
+
+    return Rcpp::DataFrame::create(
+        Rcpp::Named("scan") = outScans,
+        Rcpp::Named("file") = outFiles,
+        Rcpp::Named("path") = outPaths,
+        Rcpp::Named("rt") = outRTs,
+        Rcpp::Named("ms_level") = outLevels,
+        Rcpp::Named("precursor_mz") = outTargets,
+        Rcpp::Named("isolation_window_lower_offset") = outLowers,
+        Rcpp::Named("isolation_window_upper_offset") = outUppers,
+        Rcpp::Named("stringsAsFactors") = false);
 }
 
 //' @title Remove the substring which is shared by the begining and end of all strings in a CharacterVector.
