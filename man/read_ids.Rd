@@ -6,7 +6,7 @@
 \usage{
 read_ids(
   fname = system.file("extdata/Human_uniprot-reviewed_20171020.fasta", package =
-    "peptideUtils", mustWork = T),
+    "RPeptideUtils", mustWork = T),
   id_line_regex = "^>(sp|tr)",
   capture_regex = "^>[sptr]{2}\\\\|(\\\\w+)\\\\|(\\\\w+)_\\\\w+",
   .colnames = c("id", "protein")
