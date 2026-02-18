@@ -10,10 +10,6 @@
 #include <chrono>
 #include <regex>
 
-#include <cmath>
-#include <fstream>
-#include <sstream>
-
 #include <fastaFile.hpp>
 #include <molecularFormula.hpp>
 #include <sequenceUtils.hpp>
@@ -742,7 +738,7 @@ struct ScanResult {
     std::string filePath;
     double rt;
     int msLevel;
-    double isoWinTarget;
+    double precursorMz;
     double isoWinLower;
     double isoWinUpper;
 };
@@ -752,79 +748,17 @@ struct FileGroup {
     std::vector<std::pair<size_t, size_t>> tasks; // (originalIndex, scanNum)
 };
 
-//! Extract a double value attribute from a cvParam XML string
-double _extractCvParamValue(const std::string& xml, const std::string& accession)
-{
-    size_t pos = xml.find(accession);
-    if(pos == std::string::npos) return std::numeric_limits<double>::quiet_NaN();
-    size_t valPos = xml.find("value=\"", pos);
-    if(valPos == std::string::npos) return std::numeric_limits<double>::quiet_NaN();
-    valPos += 7;
-    size_t valEnd = xml.find("\"", valPos);
-    if(valEnd == std::string::npos) return std::numeric_limits<double>::quiet_NaN();
-    return std::stod(xml.substr(valPos, valEnd - valPos));
-}
-
-//! Parse isolation windows from raw mzML file content.
-//! Returns a map from scan number to (targetMz, lowerOffset, upperOffset).
-std::map<size_t, std::tuple<double, double, double>>
-_parseIsolationWindows(const std::string& content)
-{
-    std::map<size_t, std::tuple<double, double, double>> result;
-    size_t pos = 0;
-
-    while((pos = content.find("<spectrum ", pos)) != std::string::npos) {
-        size_t endPos = content.find("</spectrum>", pos);
-        if(endPos == std::string::npos) break;
-
-        // Extract scan number from id="... scan=N ..."
-        size_t idPos = content.find("id=\"", pos);
-        if(idPos == std::string::npos || idPos > endPos) { pos = endPos; continue; }
-        size_t scanPos = content.find("scan=", idPos);
-        if(scanPos == std::string::npos || scanPos > endPos) { pos = endPos; continue; }
-        size_t numStart = scanPos + 5;
-        size_t numEnd = numStart;
-        while(numEnd < content.size() && std::isdigit(content[numEnd])) numEnd++;
-        if(numStart == numEnd) { pos = endPos; continue; }
-        size_t scanNum = std::stoul(content.substr(numStart, numEnd - numStart));
-
-        // Find isolationWindow within this spectrum
-        size_t isoPos = content.find("<isolationWindow>", pos);
-        if(isoPos != std::string::npos && isoPos < endPos) {
-            size_t isoEnd = content.find("</isolationWindow>", isoPos);
-            if(isoEnd != std::string::npos && isoEnd < endPos) {
-                std::string isoXml = content.substr(isoPos, isoEnd - isoPos);
-                double target = _extractCvParamValue(isoXml, "MS:1000827");
-                double lower = _extractCvParamValue(isoXml, "MS:1000828");
-                double upper = _extractCvParamValue(isoXml, "MS:1000829");
-                result[scanNum] = std::make_tuple(target, lower, upper);
-            }
-        }
-
-        pos = endPos;
-    }
-
-    return result;
-}
-
 void getMSScanMetadataWorker(
     const std::vector<FileGroup>& fileGroups,
     std::vector<ScanResult>& results,
     std::atomic<size_t>& scanCounter)
 {
     for(const auto& group : fileGroups) {
-        // Use MzMLFile to read and index the file
         utils::msInterface::MzMLFile mzml(group.filePath);
         if(!mzml.read())
             throw std::runtime_error("Could not read file: " + group.filePath);
 
         std::string basename = mzml.getParentFileBase();
-
-        // Parse isolation windows from raw file content
-        std::ifstream ifs(group.filePath);
-        std::string rawContent((std::istreambuf_iterator<char>(ifs)),
-                                std::istreambuf_iterator<char>());
-        auto isoWindows = _parseIsolationWindows(rawContent);
 
         for(const auto& task : group.tasks) {
             ScanResult result;
@@ -834,7 +768,7 @@ void getMSScanMetadataWorker(
             result.fileBasename = basename;
             result.rt = NA_REAL;
             result.msLevel = NA_INTEGER;
-            result.isoWinTarget = NA_REAL;
+            result.precursorMz = NA_REAL;
             result.isoWinLower = NA_REAL;
             result.isoWinUpper = NA_REAL;
 
@@ -842,16 +776,9 @@ void getMSScanMetadataWorker(
             if(mzml.getScan(task.second, scan)) {
                 result.rt = scan.getPrecursor().getRT();
                 result.msLevel = scan.getLevel();
-            }
-
-            auto it = isoWindows.find(task.second);
-            if(it != isoWindows.end()) {
-                double target = std::get<0>(it->second);
-                double lower = std::get<1>(it->second);
-                double upper = std::get<2>(it->second);
-                result.isoWinTarget = std::isnan(target) ? NA_REAL : target;
-                result.isoWinLower = std::isnan(lower) ? NA_REAL : lower;
-                result.isoWinUpper = std::isnan(upper) ? NA_REAL : upper;
+                result.precursorMz = std::stod(scan.getPrecursor().getMZ());
+                result.isoWinLower = scan.getPrecursor().getIsoWindowLowerOffset();
+                result.isoWinUpper = scan.getPrecursor().getIsoWindowUpperOffset();
             }
 
             results.push_back(result);
@@ -978,7 +905,7 @@ Rcpp::DataFrame getMSScanMetadata(Rcpp::IntegerVector scans, Rcpp::CharacterVect
         outPaths[i] = allResults[i].filePath;
         outRTs[i] = allResults[i].rt;
         outLevels[i] = allResults[i].msLevel;
-        outTargets[i] = allResults[i].isoWinTarget;
+        outTargets[i] = allResults[i].precursorMz;
         outLowers[i] = allResults[i].isoWinLower;
         outUppers[i] = allResults[i].isoWinUpper;
     }
