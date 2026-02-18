@@ -609,8 +609,10 @@ void matchingProteinsWorker(const std::map<std::string, std::string>& proteins,
     }
 }
 
-void progressBarWorker(std::atomic<size_t>& index, size_t count,
-                       const std::string& message, int sleepTime)
+// Progress bar polling function - must be called from the MAIN thread only.
+// R API (Rcpp::Rcout, utils::printProgress) is not thread-safe.
+void progressBarPoll(std::atomic<size_t>& index, size_t count,
+                     const std::string& message, int sleepTime)
 {
     size_t lastIndex = index.load();
     size_t curIndex = lastIndex;
@@ -683,12 +685,6 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
     // init threads
     std::vector<std::thread> threads;
     std::atomic<size_t> peptideIndex(0);
-    if(progressBar) {
-        std::string message = "Searching matching protein sequences for " + std::to_string(len) +
-                              " peptides using " + std::to_string(nThread) + " threads...";
-        threads.emplace_back(progressBarWorker, std::ref(peptideIndex),
-                             len, message, 1);
-    }
 
     auto* splitPeptides = new std::map<std::string, std::vector<std::string> >[nThread];
     size_t begin, end;
@@ -702,6 +698,13 @@ Rcpp::List matchingProteins(Rcpp::CharacterVector peptides, std::string fastaPat
         threads.emplace_back(matchingProteinsWorker, std::ref(sequences),
                              std::ref(splitPeptides[i]),
                              std::ref(peptideIndex));
+    }
+
+    // Poll progress bar on main thread (R API is not thread-safe)
+    if(progressBar) {
+        std::string message = "Searching matching protein sequences for " + std::to_string(len) +
+                              " peptides using " + std::to_string(nThread) + " threads...";
+        progressBarPoll(peptideIndex, len, message, 1);
     }
 
     // join threads
@@ -776,7 +779,9 @@ void getMSScanMetadataWorker(
             if(mzml.getScan(task.second, scan)) {
                 result.rt = scan.getPrecursor().getRT();
                 result.msLevel = scan.getLevel();
-                result.precursorMz = std::stod(scan.getPrecursor().getMZ());
+                const std::string& mzStr = scan.getPrecursor().getMZ();
+                if(!mzStr.empty())
+                    result.precursorMz = std::stod(mzStr);
                 result.isoWinLower = scan.getPrecursor().getIsoWindowLowerOffset();
                 result.isoWinUpper = scan.getPrecursor().getIsoWindowUpperOffset();
             }
@@ -848,13 +853,6 @@ Rcpp::DataFrame getMSScanMetadata(Rcpp::IntegerVector scans, Rcpp::CharacterVect
     // Init threads
     std::vector<std::thread> threads;
     std::atomic<size_t> scanCounter(0);
-    if(progressBar) {
-        std::string message = "Reading scan metadata for " + std::to_string(len) +
-                              " scans from " + std::to_string(nFiles) +
-                              " files using " + std::to_string(nThread) + " threads...";
-        threads.emplace_back(progressBarWorker, std::ref(scanCounter),
-                             len, message, 1);
-    }
 
     auto* threadGroups = new std::vector<FileGroup>[nThread];
     auto* threadResults = new std::vector<ScanResult>[nThread];
@@ -868,6 +866,14 @@ Rcpp::DataFrame getMSScanMetadata(Rcpp::IntegerVector scans, Rcpp::CharacterVect
                              std::ref(threadGroups[i]),
                              std::ref(threadResults[i]),
                              std::ref(scanCounter));
+    }
+
+    // Poll progress bar on main thread (R API is not thread-safe)
+    if(progressBar) {
+        std::string message = "Reading scan metadata for " + std::to_string(len) +
+                              " scans from " + std::to_string(nFiles) +
+                              " files using " + std::to_string(nThread) + " threads...";
+        progressBarPoll(scanCounter, len, message, 1);
     }
 
     // Join threads
